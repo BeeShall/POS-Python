@@ -13,94 +13,94 @@ orders = Blueprint('orders', __name__, url_prefix='/api')
 @orders.route('/startOrder', methods=["GET"])
 @cross_origin()
 def startOrder():
-    if 'orderNo' not in session:
-        tableNo = request.args.get('tableNo')
-        print("tableNo", tableNo)
-        orders = {
-            "orders": [],
-            "tableNo": tableNo,
-            "status": "INITIATED",
-            "server": "BISHAL"
-        }
+	if 'orderNo' not in session:
+		tableNo = request.args.get('tableNo')
+		print("tableNo", tableNo)
+		orders = {
+			"orders": [],
+			"tableNo": tableNo,
+			"status": "INITIATED",
+			"server": "BISHAL"
+		}
 
-        orderNo = Mongo_Client.StartOrder(orders)
-        if orderNo is not None:
-            session['orderNo'] = orderNo
-            print("New order", orderNo)
-            return redirect("/customer")
-        else:
-            return redirect("/xx")
-    else:
-        print("orderNo in session")
-        return redirect("/customer")
+		orderNo = Mongo_Client.StartOrder(orders)
+		if orderNo is not None:
+			session['orderNo'] = orderNo
+			print("New order", orderNo)
+			return redirect("/customer")
+		else:
+			return redirect("/xx")
+	else:
+		print("orderNo in session")
+		return redirect("/customer")
 
 
 @orders.route('/addOrders', methods=["POST"])
 @cross_origin()
 def addOrders():
-    if 'orderNo' in session:
-        orderNo = session['orderNo']
-        values = request.get_json(silent=True)
-        print(values)
-        if Mongo_Client.AddOrders(values, orderNo):
-            return json.dumps({
-                "success": True
-            })
-        else:
-            return json.dumps({
-                "error": "Database Error"
-            })
-    else:
-        return json.dumps({
-            "error": "Unauthorized"
-        })
+	if 'orderNo' in session:
+		orderNo = session['orderNo']
+		values = request.get_json(silent=True)
+		print(values)
+		if Mongo_Client.AddOrders(values, orderNo):
+			return json.dumps({
+				"success": True
+			})
+		else:
+			return json.dumps({
+				"error": "Database Error"
+			})
+	else:
+		return json.dumps({
+			"error": "Unauthorized"
+		})
 
 
 @orders.route('/getAllOrders', methods=["GET"])
 @cross_origin()
 def getAllOrders():
-    if 'orderNo' in session:
-        orderNo = session['orderNo']
-        values = request.get_json(silent=True)
-        orders = Mongo_Client.GetOrders(orderNo)
-        if orders is not None:
-            return json_util.dumps({
-                "success": True,
-                "orders": orders
-            })
-        else:
-            return json.dumps({
-                "error": "Database Error"
-            })
-    else:
-        return json.dumps({
-            "error": "Unauthorized"
-        })
+	if 'orderNo' in session:
+		orderNo = session['orderNo']
+		values = request.get_json(silent=True)
+		orders = Mongo_Client.GetOrders(orderNo)
+		if orders is not None:
+			return json_util.dumps({
+				"success": True,
+				"orders": orders
+			})
+		else:
+			return json.dumps({
+				"error": "Database Error"
+			})
+	else:
+		return json.dumps({
+			"error": "Unauthorized"
+		})
 
 
 @orders.route('/getAllActiveOrders', methods=["GET"])
 @cross_origin()
 def getAllActiveOrders():
-    # only authorized users are allowed to do this
-    orders = Mongo_Client.GetActiveOrders()
-    if orders is not None:
-        return json_util.dumps({
-            "success": True,
-            "orders": orders
-        })
-    else:
-        return json.dumps({
-            "error": "Database Error"
-        })
+	# only authorized users are allowed to do this
+	orders = Mongo_Client.GetActiveOrders()
+	if orders is not None:
+		return json_util.dumps({
+			"success": True,
+			"orders": orders
+		})
+	else:
+		return json.dumps({
+			"error": "Database Error"
+		})
 
 
 @orders.route('/closeOrder', methods=["GET"])
 @cross_origin()
 def closeOrder():
-    orderNo = None
-    if 'orderNo' in session:
-        orderNo = session["orderNo"]
-    '''
+	orderNo = None
+	if 'orderNo' in session:
+		orderNo = session["orderNo"]
+	'''
 	elif 'role' in session:
 		orderNo = request.args.get('orderNo')
 		if orderNo is None:
@@ -113,41 +113,41 @@ def closeOrder():
 			})
 	'''
 
-    # orderNo = request.args.get('orderNo')
-    print(orderNo)
-    if Mongo_Client.CloseOrder(orderNo):
-        return json.dumps({
-            "success": True
-        })
-    else:
-        return json.dumps({
-            "error": "Database Error"
-        })
+	# orderNo = request.args.get('orderNo')
+	print(orderNo)
+	if Mongo_Client.CloseOrder(orderNo):
+		return json.dumps({
+			"success": True
+		})
+	else:
+		return json.dumps({
+			"error": "Database Error"
+		})
 
 
 @orders.route('/cancelOrder', methods=["POST"])
 @cross_origin()
 def cancelOrder():
-    # only authorized user can do this
-    values = request.get_json(silent=True)
-    print(values)
-    if Mongo_Client.CancelOrder(values['orderId'], values['cancelId']):
-        return json.dumps({
-            "success": True
-        })
-    else:
-        return json.dumps({
-            "error": "Database Error!"
-        })
+	# only authorized user can do this
+	values = request.get_json(silent=True)
+	print(values)
+	if Mongo_Client.CancelOrder(values['orderId'], values['cancelId']):
+		return json.dumps({
+			"success": True
+		})
+	else:
+		return json.dumps({
+			"error": "Database Error!"
+		})
 
 
 @orders.route('/completeOrder', methods=["POST"])
 @cross_origin()
 def completeOrder():
-    orderNo = None
-    if 'orderNo' in session:
-        orderNo = session["orderNo"]
-    '''
+	orderNo = None
+	if 'orderNo' in session:
+		orderNo = session["orderNo"]
+	'''
 	elif 'role' in session:
 		orderNo = request.args.get('orderNo')
 		if orderNo is None:
@@ -160,33 +160,48 @@ def completeOrder():
 			})
 	'''
 
-    # orderNo = request.args.get('orderNo')
-    values = request.get_json(silent=True)
+	# orderNo = request.args.get('orderNo')
+	values = request.get_json(silent=True)
 
-    if Mongo_Client.CompleteOrder(orderNo, values):
-        session.pop("orderNo", None)
-        return json.dumps({
-            "success": True,
-            "orderId": orderNo
-        })
-    else:
-        return json.dumps({
-            "error": "Database Error"
-        })
+	if Mongo_Client.UpdateOrder(orderNo, values):
+		session.pop("orderNo", None)
+		return json.dumps({
+			"success": True,
+			"orderId": orderNo
+		})
+	else:
+		return json.dumps({
+			"error": "Database Error"
+		})
+
+@orders.route('/addTip', methods=["POST"])
+@cross_origin()
+def addTip():
+	values = request.get_json(silent=True)
+	if Mongo_Client.UpdateOrder(values["orderId"], {"tip":values["tip"]}):
+		session.pop("orderNo", None)
+		return json.dumps({
+			"success": True
+		})
+	else:
+		return json.dumps({
+			"error": "Database Error"
+		})
+
 
 
 @orders.route('/addReview', methods=["POST"])
 @cross_origin()
 def addReview():
-    values = request.get_json(silent=True)
-    if Mongo_Client.AddReview(values["menuId"], values["review"]):
-        return json.dumps({
-            "success": True
-        })
-    else:
-        return json.dumps({
-            "error": "Database Error"
-        })
+	values = request.get_json(silent=True)
+	if Mongo_Client.AddReview(values["menuId"], values["review"]):
+		return json.dumps({
+			"success": True
+		})
+	else:
+		return json.dumps({
+			"error": "Database Error"
+		})
 
 
 @orders.route('/emailReceipt', methods=["POST"])
@@ -215,4 +230,4 @@ def emailReceipt():
 			"error": "Database Error!"
 		})
 
-    
+

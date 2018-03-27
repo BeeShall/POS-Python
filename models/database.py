@@ -265,7 +265,7 @@ class Mongo_Client(object):
 			return False
 
 	@classmethod
-	def CompleteOrder(cls, orderId, data):
+	def UpdateOrder(cls, orderId, data):
 		try:
 			update = {"$set": data}
 			result = cls.db["orders"].update_one(

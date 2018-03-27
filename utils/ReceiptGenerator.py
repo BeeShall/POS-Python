@@ -57,7 +57,11 @@ class ReceiptGenerator(object):
 			rate = menuMap[order[i]['menuId']]['prices'][sizeList[order[i]['size']]]
 			quantity = order[i]['quantity']
 
-			total+= rate*quantity
+			print(rate)
+			print(quantity)
+			print(total)
+
+			total+= float(rate)*float(quantity)
 
 			dataArray.append({
 				"item": menuMap[order[i]['menuId']]['name'],
@@ -72,7 +76,7 @@ class ReceiptGenerator(object):
 			"orderNo": orders['orderNo'],
 			"tip": orders['tip'],
 			"tax": orders['tax'],
-			"grandTotal" : total
+			"grandTotal" : total + orders['tip'] + orders['tax']
 		}
 
 		return data

@@ -793,7 +793,6 @@ var OrderCompleteComponent = /** @class */ (function () {
         this.alertEmailed = false;
     }
     OrderCompleteComponent.prototype.addReview = function (menuId, rating, review) {
-        var _this = this;
         var data = {
             menuId: menuId,
             review: {
@@ -805,7 +804,6 @@ var OrderCompleteComponent = /** @class */ (function () {
             .subscribe(function (data) {
             if (data["success"]) {
                 console.log("Successfully added review");
-                _this.alertEmailed = true;
             }
             else {
                 console.log(data["error"]);
@@ -813,6 +811,7 @@ var OrderCompleteComponent = /** @class */ (function () {
         });
     };
     OrderCompleteComponent.prototype.emailReceipt = function (email) {
+        var _this = this;
         var data = {
             orderId: this.orderId,
             email: email
@@ -821,6 +820,7 @@ var OrderCompleteComponent = /** @class */ (function () {
         this.customerService.emailReceipt(data)
             .subscribe(function (data) {
             if (data["success"]) {
+                _this.alertEmailed = true;
                 console.log("Successfully added review");
             }
             else {
@@ -1159,10 +1159,118 @@ exports.AddOrderComponent = AddOrderComponent;
 
 /***/ }),
 
+/***/ "../../../../../src/app/app-waitress/add-order/close-order/close-order.component.html":
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"modal-header\">\n  <h4 class=\"modal-title\">Thank You!</h4>\n  <button type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"activeModal.dismiss('Cross click')\">\n    <span aria-hidden=\"true\">&times;</span>\n  </button>\n</div>\n<div class=\"modal-body m-0\">\n  <div id=\"checkOut\" *ngIf=\"showCheckOut\" class=\"card my-4 p-2\">\n    <h5 class=\"card-header\">Check Out</h5>\n    <div class=\"card-body\">\n      <div class=\"col order-md-1\">\n        <form class=\"needs-validation\" novalidate=\"\">\n\n          <h4 class=\"mb-3\">Payment</h4>\n\n          <div class=\"d-block my-3\">\n            <div class=\"custom-control custom-radio\">\n              <input id=\"credit\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" checked=\"\" required=\"\">\n              <label class=\"custom-control-label\" for=\"credit\">Credit card</label>\n            </div>\n            <div class=\"custom-control custom-radio\">\n              <input id=\"debit\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" required=\"\">\n              <label class=\"custom-control-label\" for=\"debit\">Debit card</label>\n            </div>\n            <div class=\"custom-control custom-radio\">\n              <input id=\"paypal\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" required=\"\">\n              <label class=\"custom-control-label\" for=\"paypal\">Paypal</label>\n            </div>\n          </div>\n          <div class=\"row\">\n            <div class=\"col-md-6 mb-3\">\n              <label for=\"cc-name\">Name on card</label>\n              <input type=\"text\" class=\"form-control\" id=\"cc-name\" placeholder=\"\" required=\"\">\n              <small class=\"text-muted\">Full name as displayed on card</small>\n              <div class=\"invalid-feedback\">\n                Name on card is required\n              </div>\n            </div>\n            <div class=\"col-md-6 mb-3\">\n              <label for=\"cc-number\">Credit card number</label>\n              <input type=\"text\" class=\"form-control\" id=\"cc-number\" placeholder=\"\" required=\"\">\n              <div class=\"invalid-feedback\">\n                Credit card number is required\n              </div>\n            </div>\n          </div>\n          <div class=\"row\">\n            <div class=\"col-md-3 mb-3\">\n              <label for=\"cc-expiration\">Expiration</label>\n              <input type=\"text\" class=\"form-control\" id=\"cc-expiration\" placeholder=\"\" required=\"\">\n              <div class=\"invalid-feedback\">\n                Expiration date required\n              </div>\n            </div>\n            <div class=\"col-md-3 mb-3\">\n              <label for=\"cc-expiration\">CVV</label>\n              <input type=\"text\" class=\"form-control\" id=\"cc-cvv\" placeholder=\"\" required=\"\">\n              <div class=\"invalid-feedback\">\n                Security code required\n              </div>\n            </div>\n          </div>\n          <hr class=\"mb-4\">\n          <button class=\"btn btn-primary btn-lg btn-block\" type=\"submit\" (click)=\"completePayment()\">Complete Payment</button>\n        </form>\n      </div>\n    </div>\n  </div>\n\n  <div *ngIf=\"!showCheckOut\" class=\"card container mb-3 p-2\">\n    <div *ngIf=\"!tipAdded\" class=\"input-group mb-3\">\n      <label for=\"tip\">Include a tip: </label>\n      <input type=\"number\" class=\"form-control col-sm-6 m-1\" name=\"tip\" id=\"tip\" [(ngModel)]=\"tip\">\n      <button type=\"button\" class=\"btn btn-primary pull-right\" (click)=\"addTip(tip)\">Add tip</button>\n    </div>\n    <ngb-alert *ngIf=\"alertEmailed\" [type]=\"success\" (close)=\"closeAlert(alert)\">Successfully emailed receipt!</ngb-alert>\n    <label for=\"receipt-email\">Email your Receipt: </label>\n    <div class=\"input-group mb-3\">\n      <input type=\"email\" class=\"form-control col-sm-6 mr-1\" name=\"email\" [(ngModel)]=\"email\">\n      <button type=\"button\" class=\"btn btn-primary pull-right\" (click)=\"emailReceipt(email)\">Send</button>\n    </div>\n  </div>\n</div>\n<div class=\"modal-footer\">\n  <button type=\"button\" class=\"btn btn-outline-dark\" (click)=\"activeModal.close('Close click')\">Close</button>\n</div>\n"
+
+/***/ }),
+
+/***/ "../../../../../src/app/app-waitress/add-order/close-order/close-order.component.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var core_1 = __webpack_require__("../../../core/esm5/core.js");
+var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap/index.js");
+var waitress_service_1 = __webpack_require__("../../../../../src/app/services/waitress.service.ts");
+var CloseOrderComponent = /** @class */ (function () {
+    function CloseOrderComponent(activeModal, waitressService) {
+        this.activeModal = activeModal;
+        this.waitressService = waitressService;
+        this.showCheckOut = true;
+        this.alertEmailed = false;
+        this.tipAdded = false;
+    }
+    CloseOrderComponent.prototype.completePayment = function () {
+        var _this = this;
+        var paymentData = {
+            tax: 0.14 * this.total,
+        };
+        this.waitressService.completePayment(paymentData)
+            .subscribe(function (data) {
+            if (data["success"]) {
+                _this.showCheckOut = false;
+            }
+            else {
+                console.log(data["err"]);
+            }
+        });
+    };
+    CloseOrderComponent.prototype.emailReceipt = function (email) {
+        var _this = this;
+        var data = {
+            orderId: this.orderId,
+            email: email
+        };
+        console.log(data);
+        this.waitressService.emailReceipt(data)
+            .subscribe(function (data) {
+            if (data["success"]) {
+                _this.alertEmailed = true;
+                console.log("Successfully added review");
+            }
+            else {
+                console.log(data["error"]);
+            }
+        });
+    };
+    CloseOrderComponent.prototype.addTip = function (tip) {
+        var _this = this;
+        var data = {
+            orderId: this.orderId,
+            tip: tip
+        };
+        console.log(data);
+        this.waitressService.addTip(data)
+            .subscribe(function (data) {
+            if (data["success"]) {
+                _this.tipAdded = true;
+                console.log("Successfully added tip");
+            }
+            else {
+                console.log(data["error"]);
+            }
+        });
+    };
+    CloseOrderComponent.prototype.ngOnInit = function () { };
+    __decorate([
+        core_1.Input(),
+        __metadata("design:type", String)
+    ], CloseOrderComponent.prototype, "orderId", void 0);
+    __decorate([
+        core_1.Input(),
+        __metadata("design:type", Number)
+    ], CloseOrderComponent.prototype, "total", void 0);
+    CloseOrderComponent = __decorate([
+        core_1.Component({
+            selector: 'close-order',
+            template: __webpack_require__("../../../../../src/app/app-waitress/add-order/close-order/close-order.component.html")
+        }),
+        __metadata("design:paramtypes", [ng_bootstrap_1.NgbActiveModal,
+            waitress_service_1.WaitressService])
+    ], CloseOrderComponent);
+    return CloseOrderComponent;
+}());
+exports.CloseOrderComponent = CloseOrderComponent;
+
+
+/***/ }),
+
 /***/ "../../../../../src/app/app-waitress/app-waitress.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<ngb-tabset>\n  <ngb-tab title=\"All Orders\">\n    <ng-template ngbTabContent>\n      <div class=\"table-responsive\">\n        <table class=\"table table-striped table-sm\">\n          <thead class=\"thead-dark\">\n            <tr>\n              <th>Order #</th>\n              <th>Table #</th>\n              <th>Quantity</th>\n              <th>Size</th>\n              <th>Menu</th>\n              <th>Server</th>\n            </tr>\n          </thead>\n          <tbody>\n            <tr *ngFor=\"let order of orders\">\n              <td>{{order.orderNo}}</td>\n              <td>{{order.tableNo}}</td>\n              <td>{{order.quantity}}</td>\n              <td>{{order.size}}</td>\n              <td>{{order.menu.name}}</td>\n              <td>{{order.server}}</td>\n            </tr>\n          </tbody>\n        </table>\n      </div>\n\n    </ng-template>\n  </ngb-tab>\n  <ngb-tab title=\"Orders by Table\">\n    <ng-template ngbTabContent>\n\n      <div class=\"container\">\n        <div class=\"row mb-3 text-center\">\n          <div *ngFor=\"let table of ordersByTable; let i =index\" class=\"card col-md-5 p-0 m-4 box-shadow\">\n            <div class=\"card-header\">\n              <div class=\"d-inline\">\n                <h4 class=\"my-0 font-weight-normal d-inline float-left\">Order # {{table.orderNo}}</h4>\n                <h4 class=\"my-0 font-weight-normal d-inline float-right\">Table # {{table.tableNo}}</h4>\n              </div>\n            </div>\n            <div class=\"card-body\">\n              <div class=\"container\">\n                <div *ngFor=\"let order of table.orders; let j = index \" class=\"row\">\n                  <div class=\"col\">{{order.quantity}}</div>\n                  <div class=\"col\">{{order.menu.prices[order.size].type}}</div>\n                  <div class=\"col\"> {{order.menu.name}}</div>\n                  <div class=\"col\"> {{order.status}}</div>\n                  <button class=\"btn btn-danger btn-sm mb-3\" (click)=\"cancelOrder(i, j)\">X</button>\n                </div>\n              </div>\n            </div>\n\n            <div class=\"card-footer text-muted\">\n              <div class=\"btn-group\" role=\"group\" aria-label=\"Basic example\">\n                <button type=\"button\" class=\"btn btn-success\" (click)=\"addOrder(i)\">Add</button>\n                <button type=\"button\" class=\"btn  btn-danger\" (click)=\"closeOrder(table.orderNo)\">Close</button>\n              </div>\n            </div>\n\n          </div>\n        </div>\n      </div>\n    </ng-template>\n  </ngb-tab>\n</ngb-tabset>\n"
+module.exports = "<ngb-tabset>\n  <ngb-tab title=\"All Orders\">\n    <ng-template ngbTabContent>\n      <div class=\"table-responsive\">\n        <table class=\"table table-striped table-sm\">\n          <thead class=\"thead-dark\">\n            <tr>\n              <th>Order #</th>\n              <th>Table #</th>\n              <th>Quantity</th>\n              <th>Size</th>\n              <th>Menu</th>\n              <th>Server</th>\n            </tr>\n          </thead>\n          <tbody>\n            <tr *ngFor=\"let order of orders\">\n              <td>{{order.orderNo}}</td>\n              <td>{{order.tableNo}}</td>\n              <td>{{order.quantity}}</td>\n              <td>{{order.size}}</td>\n              <td>{{order.menu.name}}</td>\n              <td>{{order.server}}</td>\n            </tr>\n          </tbody>\n        </table>\n      </div>\n\n    </ng-template>\n  </ngb-tab>\n  <ngb-tab title=\"Orders by Table\">\n    <ng-template ngbTabContent>\n\n      <div class=\"container\">\n        <div class=\"row mb-3 text-center\">\n          <div *ngFor=\"let table of ordersByTable; let i =index\" class=\"card col-md-5 p-0 m-4 box-shadow\">\n            <div class=\"card-header\">\n              <div class=\"d-inline\">\n                <h4 class=\"my-0 font-weight-normal d-inline float-left\">Order # {{table.orderNo}}</h4>\n                <h4 class=\"my-0 font-weight-normal d-inline float-right\">Table # {{table.tableNo}}</h4>\n              </div>\n            </div>\n            <div class=\"card-body\">\n              <div class=\"container\">\n                <div *ngFor=\"let order of table.orders; let j = index \" class=\"row\">\n                  <div class=\"col\">{{order.quantity}}</div>\n                  <div class=\"col\">{{order.menu.prices[order.size].type}}</div>\n                  <div class=\"col\"> {{order.menu.name}}</div>\n                  <div class=\"col\"> {{order.status}}</div>\n                  <button class=\"btn btn-danger btn-sm mb-3\" (click)=\"cancelOrder(i, j)\">X</button>\n                </div>\n              </div>\n            </div>\n\n            <div class=\"card-footer text-muted\">\n              <div class=\"btn-group\" role=\"group\" aria-label=\"Basic example\">\n                <button type=\"button\" class=\"btn btn-success\" (click)=\"addOrder(i)\">Add</button>\n                <button type=\"button\" class=\"btn  btn-danger\" (click)=\"closeOrder(table.orderId, table.orders)\">Close</button>\n              </div>\n            </div>\n\n          </div>\n        </div>\n      </div>\n    </ng-template>\n  </ngb-tab>\n</ngb-tabset>\n"
 
 /***/ }),
 
@@ -1187,6 +1295,7 @@ var socket_service_1 = __webpack_require__("../../../../../src/app/services/sock
 var menu_service_1 = __webpack_require__("../../../../../src/app/services/menu.service.ts");
 var add_order_component_1 = __webpack_require__("../../../../../src/app/app-waitress/add-order/add-order.component.ts");
 var waitress_service_1 = __webpack_require__("../../../../../src/app/services/waitress.service.ts");
+var close_order_component_1 = __webpack_require__("../../../../../src/app/app-waitress/add-order/close-order/close-order.component.ts");
 var AppWaitressComponent = /** @class */ (function () {
     function AppWaitressComponent(config, socketService, waitressService, menuService, modalService) {
         this.socketService = socketService;
@@ -1289,7 +1398,7 @@ var AppWaitressComponent = /** @class */ (function () {
             }
         });
     };
-    AppWaitressComponent.prototype.closeOrder = function (orderId) {
+    AppWaitressComponent.prototype.closeOrder = function (orderId, orders) {
         var _this = this;
         console.log("orderId", orderId);
         this.waitressService.closeOrder(orderId)
@@ -1297,8 +1406,16 @@ var AppWaitressComponent = /** @class */ (function () {
             if (data["success"]) {
                 console.log("Order Successfully closed");
                 //remove from ordersByTable
+                var total = 0;
+                for (var i = 0; i < orders.length; i++) {
+                    var price = orders[i].menu.prices[orders[i].size].price;
+                    total += orders[i].quantity * price;
+                }
+                var modalRef = _this.modalService.open(close_order_component_1.CloseOrderComponent);
+                modalRef.componentInstance.orderId = orderId;
+                modalRef.componentInstance.total = total;
                 for (var i = 0; i < _this.ordersByTable.length; i++) {
-                    if (_this.ordersByTable[i].orderNo == orderId) {
+                    if (_this.ordersByTable[i].orderId == orderId) {
                         _this.ordersByTable.splice(i, 1);
                     }
                 }
@@ -1338,6 +1455,46 @@ var AppWaitressComponent = /** @class */ (function () {
     return AppWaitressComponent;
 }());
 exports.AppWaitressComponent = AppWaitressComponent;
+
+
+/***/ }),
+
+/***/ "../../../../../src/app/app-waitress/app-waitress.module.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var core_1 = __webpack_require__("../../../core/esm5/core.js");
+var forms_1 = __webpack_require__("../../../forms/esm5/forms.js");
+var common_1 = __webpack_require__("../../../common/esm5/common.js");
+var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap/index.js");
+var router_1 = __webpack_require__("../../../router/esm5/router.js");
+var app_waitress_component_1 = __webpack_require__("../../../../../src/app/app-waitress/app-waitress.component.ts");
+var add_order_component_1 = __webpack_require__("../../../../../src/app/app-waitress/add-order/add-order.component.ts");
+var close_order_component_1 = __webpack_require__("../../../../../src/app/app-waitress/add-order/close-order/close-order.component.ts");
+var main_pipe_module_1 = __webpack_require__("../../../../../src/app/pipes/main-pipe.module.ts");
+var AppWaitressModule = /** @class */ (function () {
+    function AppWaitressModule() {
+    }
+    AppWaitressModule = __decorate([
+        core_1.NgModule({
+            imports: [forms_1.FormsModule, common_1.CommonModule, ng_bootstrap_1.NgbModule, forms_1.ReactiveFormsModule, router_1.RouterModule, main_pipe_module_1.MainPipeModule],
+            exports: [],
+            declarations: [app_waitress_component_1.AppWaitressComponent, add_order_component_1.AddOrderComponent, close_order_component_1.CloseOrderComponent],
+            entryComponents: [add_order_component_1.AddOrderComponent, close_order_component_1.CloseOrderComponent],
+            providers: [],
+        })
+    ], AppWaitressModule);
+    return AppWaitressModule;
+}());
+exports.AppWaitressModule = AppWaitressModule;
 
 
 /***/ }),
@@ -1425,18 +1582,17 @@ var employee_service_1 = __webpack_require__("../../../../../src/app/services/em
 var page_not_found_component_1 = __webpack_require__("../../../../../src/app/page-not-found/page-not-found.component.ts");
 var app_customer_modules_1 = __webpack_require__("../../../../../src/app/app-customer/app-customer.modules.ts");
 var customer_service_1 = __webpack_require__("../../../../../src/app/services/customer.service.ts");
-var app_waitress_component_1 = __webpack_require__("../../../../../src/app/app-waitress/app-waitress.component.ts");
 var socket_service_1 = __webpack_require__("../../../../../src/app/services/socket.service.ts");
-var add_order_component_1 = __webpack_require__("../../../../../src/app/app-waitress/add-order/add-order.component.ts");
 var waitress_service_1 = __webpack_require__("../../../../../src/app/services/waitress.service.ts");
 var main_pipe_module_1 = __webpack_require__("../../../../../src/app/pipes/main-pipe.module.ts");
+var app_waitress_module_1 = __webpack_require__("../../../../../src/app/app-waitress/app-waitress.module.ts");
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
     AppModule = __decorate([
         core_1.NgModule({
             declarations: [
-                app_component_1.AppComponent, app_login_component_1.AppLoginComponent, page_not_found_component_1.PageNotFoundComponent, app_waitress_component_1.AppWaitressComponent, add_order_component_1.AddOrderComponent
+                app_component_1.AppComponent, app_login_component_1.AppLoginComponent, page_not_found_component_1.PageNotFoundComponent
             ],
             imports: [
                 platform_browser_1.BrowserModule,
@@ -1445,11 +1601,12 @@ var AppModule = /** @class */ (function () {
                 forms_1.FormsModule,
                 app_admin_module_1.AppAdminModule,
                 app_customer_modules_1.AppCustomerModule,
+                app_waitress_module_1.AppWaitressModule,
                 ng_bootstrap_1.NgbModule.forRoot(),
                 main_pipe_module_1.MainPipeModule
             ],
             providers: [app_service_1.AppService, menu_service_1.MenuService, employee_service_1.EmployeeService, customer_service_1.CustomerService, socket_service_1.SocketService, waitress_service_1.WaitressService],
-            entryComponents: [add_order_component_1.AddOrderComponent],
+            entryComponents: [],
             bootstrap: [app_component_1.AppComponent]
         })
     ], AppModule);
@@ -2059,6 +2216,18 @@ var WaitressService = /** @class */ (function () {
     WaitressService.prototype.cancelOrder = function (data) {
         console.log(JSON.stringify(data));
         return this.http.post(this.apiUrl + "cancelOrder", JSON.stringify(data), this.options)
+            .map(function (res) { return res.json(); });
+    };
+    WaitressService.prototype.emailReceipt = function (data) {
+        return this.http.post(this.apiUrl + "emailReceipt", data, this.options)
+            .map(function (res) { return res.json(); });
+    };
+    WaitressService.prototype.completePayment = function (data) {
+        return this.http.post(this.apiUrl + "completeOrder", data, this.options)
+            .map(function (res) { return res.json(); });
+    };
+    WaitressService.prototype.addTip = function (data) {
+        return this.http.post(this.apiUrl + "addTip", data, this.options)
             .map(function (res) { return res.json(); });
     };
     WaitressService = __decorate([
