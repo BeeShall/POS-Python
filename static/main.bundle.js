@@ -534,7 +534,7 @@ var AppCustomerComponent = /** @class */ (function () {
         var idMenu = {};
         for (var _a = 0, menus_1 = menus; _a < menus_1.length; _a++) {
             var menu = menus_1[_a];
-            idMenu[menu.menuId] = menu;
+            idMenu[menu["_id"]["$oid"]] = menu;
             this.dispMenu[menu.menutype].push(menu);
         }
         this.customerService.getAllOrders()
@@ -595,6 +595,7 @@ var router_1 = __webpack_require__("../../../router/esm5/router.js");
 var display_menu_component_1 = __webpack_require__("../../../../../src/app/app-customer/display-menu/display-menu.component.ts");
 var orders_component_1 = __webpack_require__("../../../../../src/app/app-customer/orders/orders.component.ts");
 var view_details_component_1 = __webpack_require__("../../../../../src/app/app-customer/display-menu/view-details/view-details.component.ts");
+var order_complete_component_1 = __webpack_require__("../../../../../src/app/app-customer/orders/order-complete/order-complete.component.ts");
 var AppCustomerModule = /** @class */ (function () {
     function AppCustomerModule() {
     }
@@ -602,8 +603,8 @@ var AppCustomerModule = /** @class */ (function () {
         core_1.NgModule({
             imports: [forms_1.FormsModule, common_1.CommonModule, ng_bootstrap_1.NgbModule, forms_1.ReactiveFormsModule, router_1.RouterModule],
             exports: [],
-            declarations: [app_customer_component_1.AppCustomerComponent, display_menu_component_1.DisplayMenuComponent, orders_component_1.OrdersComponent, view_details_component_1.ViewDetailsComponent],
-            entryComponents: [view_details_component_1.ViewDetailsComponent],
+            declarations: [app_customer_component_1.AppCustomerComponent, display_menu_component_1.DisplayMenuComponent, orders_component_1.OrdersComponent, view_details_component_1.ViewDetailsComponent, order_complete_component_1.OrderCompleteComponent],
+            entryComponents: [view_details_component_1.ViewDetailsComponent, order_complete_component_1.OrderCompleteComponent],
             providers: [],
         })
     ], AppCustomerModule);
@@ -711,7 +712,7 @@ module.exports = module.exports.toString();
 /***/ "../../../../../src/app/app-customer/display-menu/view-details/view-details.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"modal-header\">\n  <h4 class=\"modal-title\">{{menu.name}}</h4>\n  <button type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"activeModal.dismiss('Cross click')\">\n    <span aria-hidden=\"true\">&times;</span>\n  </button>\n</div>\n<div class=\"modal-body m-0\">\n\n  <div class=\"container my-2\">\n    <div class=\"card text-left p-2 mb-3\">\n      <div class=\"lead\">\n        <em>{{menu.description}} </em>\n      </div>\n\n      <div>\n        <span class=\"h5\">Ingredients:</span>\n        <span *ngFor=\"let ing of menu.ingredients\">\n          <em>{{ing}},</em>\n        </span>\n\n      </div>\n      <div class=\"text-left\">\n        <span class=\"h5\"> Prices: </span>\n        <div *ngFor=\"let price of menu.prices\" class=\"ml-4\">\n          <span>{{price.type}}</span> ......\n          <span>${{price.price}}</span>\n        </div>\n      </div>\n    </div>\n\n    <hr>\n\n    <div class=\"m-0 p-0\">\n      <section class=\" border m-0 p-2\">\n        <header class=\"h1\">Nutrition Facts\n        </header>\n        <table class=\"performance-facts__table small\">\n          <tbody>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Calories</b>\n                {{menu.nutrition.calories.calories}}\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                Calories from Fat {{menu.nutrition.calories.caloriesFromFat}}\n              </td>\n            </tr>\n            <tr class=\"thick-row\">\n              <td colspan=\"3\" class=\"small\">\n                <b>% Daily Value*</b>\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Total Fat</b>\n                {{menu.nutrition.fat.fat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.fat.fat/dailyValues.fat).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Saturated Fat {{menu.nutrition.fat.satFat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.fat.satFat/dailyValues.satFat).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Unsaturated Fat {{menu.nutrition.fat.unsatFat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Trans Fat {{menu.nutrition.fat.transFat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Cholesterol</b>\n                {{menu.nutrition.cholestrol}}mg\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.cholestrol/dailyValues.cholestrol).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Sodium</b>\n                {{menu.nutrition.sodium}}mg\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.sodium/dailyValues.sodium).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Total Carbohydrate</b>\n                {{menu.nutrition.carbs.carbs}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.carbs.carbs/dailyValues.carbs).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Dietary Fiber {{menu.nutrition.carbs.fiber}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.carbs.fiber/dailyValues.fiber).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Sugars {{menu.nutrition.carbs.sugar}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n            <tr class=\"thick-end\">\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Protein</b>\n                {{menu.nutrition.protein}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n          </tbody>\n        </table>\n\n        <table class=\"performance-facts__table--grid small\">\n          <tbody>\n            <tr>\n              <td colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                Vitamin A {{menu.nutrition.vitamin.vita}}%\n              </td>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                Vitamin C {{menu.nutrition.vitamin.vitc}}%\n              </td>\n            </tr>\n            <tr class=\"border-bottom\">\n              <td colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                Calcium {{menu.nutrition.calcium}}%\n              </td>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                Iron {{menu.nutrition.iron}}%\n              </td>\n            </tr>\n          </tbody>\n        </table>\n\n        <p class=\"small\">* Percent Daily Values are based on a 2,000 calorie diet. Your daily values may be higher or lower depending on your\n          calorie needs:</p>\n\n        <table class=\"performance-facts__table--small small border-bottom\">\n          <thead>\n            <tr>\n              <td colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\"></td>\n              <th class=\"border-top font-weight-normal text-nowrap\">Calories:</th>\n              <th class=\"border-top font-weight-normal text-nowrap\">2,000</th>\n              <th class=\"border-top font-weight-normal text-nowrap\">2,500</th>\n            </tr>\n          </thead>\n          <tbody>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Total Fat</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">65g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">80g</td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\"></td>\n              <th class=\"border-top font-weight-normal text-nowrap\">Saturated Fat</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">20g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">25g</td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Cholesterol</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">300mg</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">300 mg</td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Sodium</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">2,400mg</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">2,400mg</td>\n            </tr>\n            <tr>\n              <th colspan=\"3\" class=\"border-top font-weight-normal text-nowrap\">Total Carbohydrate</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">300g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">375g</td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\"></td>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Dietary Fiber</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">25g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">30g</td>\n            </tr>\n          </tbody>\n        </table>\n\n        <p class=\"small\">\n          Calories per gram:\n        </p>\n        <p class=\"small text-center\">\n          Fat 9 &bull; Carbohydrate 4 &bull; Protein 4\n        </p>\n\n      </section>\n\n\n    </div>\n  </div>\n\n  <ngb-accordion #acc=\"ngbAccordion\" activeIds=\"ngb-panel-0\">\n    <ngb-panel title=\"Reviews\">\n      <ng-template ngbPanelContent>\n        <div class=\"card p-2\">\n          <span class=\"h6\">Rating: </span><ngb-rating [(rate)]=\"currentRate\"></ngb-rating>\n          Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute,\n          non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt\n          aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica,\n          craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings\n          occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus\n          labore sustainable VHS.\n        </div>\n      </ng-template>\n    </ngb-panel>\n  </ngb-accordion>\n</div>\n<div class=\"modal-footer\">\n  <button type=\"button\" class=\"btn btn-outline-dark\" (click)=\"activeModal.close('Close click')\">Close</button>\n</div>\n"
+module.exports = "<div class=\"modal-header\">\n  <h4 class=\"modal-title\">{{menu.name}}</h4>\n  <button type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"activeModal.dismiss('Cross click')\">\n    <span aria-hidden=\"true\">&times;</span>\n  </button>\n</div>\n<div class=\"modal-body m-0\">\n\n  <div class=\"container my-2\">\n    <div class=\"card text-left p-2 mb-3\">\n      <div class=\"lead\">\n        <em>{{menu.description}} </em>\n      </div>\n\n      <div>\n        <span class=\"h5\">Ingredients:</span>\n        <span *ngFor=\"let ing of menu.ingredients\">\n          <em>{{ing}},</em>\n        </span>\n\n      </div>\n      <div class=\"text-left\">\n        <span class=\"h5\"> Prices: </span>\n        <div *ngFor=\"let price of menu.prices\" class=\"ml-4\">\n          <span>{{price.type}}</span> ......\n          <span>${{price.price}}</span>\n        </div>\n      </div>\n    </div>\n\n    <hr>\n\n    <div class=\"m-0 p-0\">\n      <section class=\" border m-0 p-2\">\n        <header class=\"h1\">Nutrition Facts\n        </header>\n        <table class=\"performance-facts__table small\">\n          <tbody>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Calories</b>\n                {{menu.nutrition.calories.calories}}\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                Calories from Fat {{menu.nutrition.calories.caloriesFromFat}}\n              </td>\n            </tr>\n            <tr class=\"thick-row\">\n              <td colspan=\"3\" class=\"small\">\n                <b>% Daily Value*</b>\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Total Fat</b>\n                {{menu.nutrition.fat.fat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.fat.fat/dailyValues.fat).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Saturated Fat {{menu.nutrition.fat.satFat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.fat.satFat/dailyValues.satFat).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Unsaturated Fat {{menu.nutrition.fat.unsatFat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Trans Fat {{menu.nutrition.fat.transFat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Cholesterol</b>\n                {{menu.nutrition.cholestrol}}mg\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.cholestrol/dailyValues.cholestrol).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Sodium</b>\n                {{menu.nutrition.sodium}}mg\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.sodium/dailyValues.sodium).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Total Carbohydrate</b>\n                {{menu.nutrition.carbs.carbs}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.carbs.carbs/dailyValues.carbs).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Dietary Fiber {{menu.nutrition.carbs.fiber}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.carbs.fiber/dailyValues.fiber).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Sugars {{menu.nutrition.carbs.sugar}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n            <tr class=\"thick-end\">\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Protein</b>\n                {{menu.nutrition.protein}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n          </tbody>\n        </table>\n\n        <table class=\"performance-facts__table--grid small\">\n          <tbody>\n            <tr>\n              <td colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                Vitamin A {{menu.nutrition.vitamin.vita}}%\n              </td>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                Vitamin C {{menu.nutrition.vitamin.vitc}}%\n              </td>\n            </tr>\n            <tr class=\"border-bottom\">\n              <td colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                Calcium {{menu.nutrition.calcium}}%\n              </td>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                Iron {{menu.nutrition.iron}}%\n              </td>\n            </tr>\n          </tbody>\n        </table>\n\n        <p class=\"small\">* Percent Daily Values are based on a 2,000 calorie diet. Your daily values may be higher or lower depending on your\n          calorie needs:</p>\n\n        <table class=\"performance-facts__table--small small border-bottom\">\n          <thead>\n            <tr>\n              <td colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\"></td>\n              <th class=\"border-top font-weight-normal text-nowrap\">Calories:</th>\n              <th class=\"border-top font-weight-normal text-nowrap\">2,000</th>\n              <th class=\"border-top font-weight-normal text-nowrap\">2,500</th>\n            </tr>\n          </thead>\n          <tbody>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Total Fat</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">65g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">80g</td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\"></td>\n              <th class=\"border-top font-weight-normal text-nowrap\">Saturated Fat</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">20g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">25g</td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Cholesterol</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">300mg</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">300 mg</td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Sodium</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">2,400mg</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">2,400mg</td>\n            </tr>\n            <tr>\n              <th colspan=\"3\" class=\"border-top font-weight-normal text-nowrap\">Total Carbohydrate</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">300g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">375g</td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\"></td>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Dietary Fiber</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">25g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">30g</td>\n            </tr>\n          </tbody>\n        </table>\n\n        <p class=\"small\">\n          Calories per gram:\n        </p>\n        <p class=\"small text-center\">\n          Fat 9 &bull; Carbohydrate 4 &bull; Protein 4\n        </p>\n\n      </section>\n\n\n    </div>\n  </div>\n\n  <ngb-accordion #acc=\"ngbAccordion\" activeIds=\"ngb-panel-0\">\n    <ngb-panel title=\"Reviews\">\n      <ng-template ngbPanelContent>\n        <div *ngFor=\"let review of menu.reviews \" class=\"card p-2 container\">\n          <div>\n            <span class=\"h6\">Rating: </span>\n            <ngb-rating [(rate)]=\"review.rating\" [readonly]=\"true\"></ngb-rating>\n\n          </div>\n          <div>\n            <span class=\"h6\">Review: </span>\n            <p>\n              {{review.review}}\n            </p>\n          </div>\n        </div>\n      </ng-template>\n    </ngb-panel>\n  </ngb-accordion>\n</div>\n<div class=\"modal-footer\">\n  <button type=\"button\" class=\"btn btn-outline-dark\" (click)=\"activeModal.close('Close click')\">Close</button>\n</div>\n"
 
 /***/ }),
 
@@ -749,7 +750,7 @@ var ViewDetailsComponent = /** @class */ (function () {
         core_1.Component({
             selector: 'view-details',
             template: __webpack_require__("../../../../../src/app/app-customer/display-menu/view-details/view-details.component.html"),
-            styles: [__webpack_require__("../../../../../src/app/app-customer/display-menu/view-details/view-details.component.css")]
+            styles: [__webpack_require__("../../../../../src/app/app-customer/display-menu/view-details/view-details.component.css")],
         }),
         __metadata("design:paramtypes", [ng_bootstrap_1.NgbActiveModal])
     ], ViewDetailsComponent);
@@ -760,10 +761,101 @@ exports.ViewDetailsComponent = ViewDetailsComponent;
 
 /***/ }),
 
+/***/ "../../../../../src/app/app-customer/orders/order-complete/order-complete.component.html":
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"modal-header\">\n  <h4 class=\"modal-title\">Thank You!</h4>\n  <button type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"activeModal.dismiss('Cross click')\">\n    <span aria-hidden=\"true\">&times;</span>\n  </button>\n</div>\n<div class=\"modal-body m-0\">\n  <div class=\"card container mb-3 p-2\">\n    <ngb-alert *ngIf=\"alertEmailed\" [type]=\"success\" (close)=\"closeAlert(alert)\">Successfully emailed receipt!</ngb-alert>\n    <label for=\"receipt-email\">Email your Receipt: </label>\n    <div class=\"input-group mb-3\">\n      <input type=\"email\" class=\"form-control col-sm-4 mr-1\" name=\"email\" [(ngModel)]=\"email\">\n      <button type=\"button\" class=\"btn btn-primary pull-right\" (click)=\"emailReceipt(email)\">Send</button>\n    </div>\n  </div>\n  <div class=\"card p-2\">\n    <div class=\"h3\"> Please rate the food you ordered: </div>\n    <ngb-accordion #acc=\"ngbAccordion\" activeIds=\"ngb-panel-0\">\n      <ngb-panel *ngFor=\"let k of activeOrders\" title=\"{{k.menu.name}}\">\n        <ng-template ngbPanelContent>\n          <div class=\"input-group mb-3\">\n            <div class=\"mb-2\">\n              <span class=\"h6\">Rating: </span>\n              <ngb-rating name=\"rating\" [(ngModel)]=\"k.menu.rating\"></ngb-rating>\n            </div>\n            <div>\n              <span class=\"h6\">Review:</span>\n              <textarea class=\"form-control mb-1\" name=\"review\" [(ngModel)]=\"k.menu.review\"></textarea>\n            </div>\n            <button type=\"submit\" class=\"btn btn-primary pull-right\" (click)=\"addReview(k.menuId, k.menu.rating, k.menu.review)\">Add Review</button>\n          </div>\n        </ng-template>\n      </ngb-panel>\n    </ngb-accordion>\n  </div>\n\n</div>\n<div class=\"modal-footer\">\n  <button type=\"button\" class=\"btn btn-outline-dark\" (click)=\"activeModal.close('Close click')\">Close</button>\n</div>\n"
+
+/***/ }),
+
+/***/ "../../../../../src/app/app-customer/orders/order-complete/order-complete.component.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var core_1 = __webpack_require__("../../../core/esm5/core.js");
+var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap/index.js");
+var customer_service_1 = __webpack_require__("../../../../../src/app/services/customer.service.ts");
+var OrderCompleteComponent = /** @class */ (function () {
+    function OrderCompleteComponent(activeModal, customerService) {
+        this.activeModal = activeModal;
+        this.customerService = customerService;
+        this.alertEmailed = false;
+    }
+    OrderCompleteComponent.prototype.addReview = function (menuId, rating, review) {
+        var _this = this;
+        var data = {
+            menuId: menuId,
+            review: {
+                rating: rating,
+                review: review
+            }
+        };
+        this.customerService.addReview(data)
+            .subscribe(function (data) {
+            if (data["success"]) {
+                console.log("Successfully added review");
+                _this.alertEmailed = true;
+            }
+            else {
+                console.log(data["error"]);
+            }
+        });
+    };
+    OrderCompleteComponent.prototype.emailReceipt = function (email) {
+        var data = {
+            orderId: this.orderId,
+            email: email
+        };
+        console.log(data);
+        this.customerService.emailReceipt(data)
+            .subscribe(function (data) {
+            if (data["success"]) {
+                console.log("Successfully added review");
+            }
+            else {
+                console.log(data["error"]);
+            }
+        });
+    };
+    OrderCompleteComponent.prototype.ngOnInit = function () { };
+    __decorate([
+        core_1.Input(),
+        __metadata("design:type", Array)
+    ], OrderCompleteComponent.prototype, "activeOrders", void 0);
+    __decorate([
+        core_1.Input(),
+        __metadata("design:type", String)
+    ], OrderCompleteComponent.prototype, "orderId", void 0);
+    OrderCompleteComponent = __decorate([
+        core_1.Component({
+            selector: 'order-complete',
+            template: __webpack_require__("../../../../../src/app/app-customer/orders/order-complete/order-complete.component.html")
+        }),
+        __metadata("design:paramtypes", [ng_bootstrap_1.NgbActiveModal,
+            customer_service_1.CustomerService])
+    ], OrderCompleteComponent);
+    return OrderCompleteComponent;
+}());
+exports.OrderCompleteComponent = OrderCompleteComponent;
+
+
+/***/ }),
+
 /***/ "../../../../../src/app/app-customer/orders/orders.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"card my-4\">\n  <h5 class=\"card-header\">Pending Orders</h5>\n  <div class=\"card-body\">\n    <ul class=\"list-group mb-3\">\n      <li *ngFor=\"let k of pendingOrders; let i = index\" class=\"list-group-item d-flex justify-content-between d-flex\">\n        <div class=\"d-inline d-flex d-flex\">\n          <div class=\"text-muted mr-2\">\n            <span> {{k.quantity}} </span>\n            <span> {{k.menu.prices[k.size].type}} </span>\n          </div>\n          <div class=\"d-inline\">\n            <h6 class=\"my-0\">{{k.menu.name}}</h6>\n            <small class=\"text-muted\">{{k.menu.description}}</small>\n          </div>\n        </div>\n        <span class=\"text-muted\">${{k.menu.prices[k.size].price * k.quantity}}</span>\n        <div class=\"ml-2\">\n          <button class=\"btn btn-danger btn-sm\" (click)=\"removeOrder(i)\">X</button>\n        </div>\n      </li>\n      <li class=\"list-group-item d-flex justify-content-between\">\n        <span>Total (USD)</span>\n        <strong>${{getTotal(pendingOrders)}}</strong>\n      </li>\n    </ul>\n    <div class=\"input-group-append float-right\">\n      <button type=\"submit\" class=\"btn btn-secondary\" (click)=\"addToActive()\">Confirm</button>\n    </div>\n  </div>\n</div>\n\n<div class=\"card my-4\">\n  <h5 class=\"card-header\">Active Orders</h5>\n  <div class=\"card-body\">\n    <ul class=\"list-group mb-3\">\n      <li *ngFor=\"let k of activeOrders\" class=\"list-group-item d-flex justify-content-between lh-condensed\">\n        <div class=\"d-inline d-flex d-flex\">\n          <div class=\"text-muted mr-2\">\n            <span> {{k.quantity}} </span>\n            <span> {{k.menu.prices[k.size].type}} </span>\n          </div>\n          <div class=\"d-inline\">\n            <h6 class=\"my-0\">{{k.menu.name}}</h6>\n            <small class=\"text-muted\">{{k.menu.description}}</small>\n          </div>\n        </div>\n        <span class=\"text-muted\">${{k.menu.prices[k.size].price * k.quantity}}</span>\n      </li>\n      <li class=\"list-group-item d-flex justify-content-between\">\n        <span>Total (USD)</span>\n        <strong>${{getTotal(activeOrders)}}</strong>\n      </li>\n      <li class=\"list-group-item d-flex justify-content-between\">\n        <span>Tax (USD)</span>\n        <strong>${{getTax()}}</strong>\n      </li>\n      <li class=\"list-group-item d-flex justify-content-between\">\n        <span>Tip (USD)</span>\n        <input type=\"number\" name=\"tipPercent\" min=\"0.00\" id=\"tipPercent\" class=\"form-control mb-2 ml-2 mr-sm-2\" (input)=\"getTip($event.target.value)\"\n          list=\"menuTypes\" [(ngModel)]=\"tipPercent\">\n        <strong class=\"col-md-2\">%</strong>\n        <datalist id=\"menuTypes\">\n          <option> 10</option>\n        </datalist>\n        <strong>$</strong>\n        <input type=\"number\" name=\"tip\" step='.01' id=\"tip\" class=\"form-control mb-2 ml-2 mr-sm-2\" [(ngModel)]=\"tip\">\n      </li>\n      <li class=\"list-group-item d-flex justify-content-between\">\n        <span>Grand Total (USD)</span>\n        <strong>${{ getGrandTotal() }}</strong>\n      </li>\n\n    </ul>\n\n    <div class=\"input-group-append float-right\">\n      <button type=\"submit\" class=\"btn btn-secondary \" href=\"#checkOut\" (click)=\"closeOrder()\">Pay and close order</button>\n    </div>\n  </div>\n</div>\n\n<div id=\"checkOut\" *ngIf=\"showCheckOut\" class=\"card my-4\">\n  <h5 class=\"card-header\">Check Out</h5>\n  <div class=\"card-body\">\n    <div class=\"col order-md-1\">\n      <form class=\"needs-validation\" novalidate=\"\">\n\n        <h4 class=\"mb-3\">Payment</h4>\n\n        <div class=\"d-block my-3\">\n          <div class=\"custom-control custom-radio\">\n            <input id=\"credit\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" checked=\"\" required=\"\">\n            <label class=\"custom-control-label\" for=\"credit\">Credit card</label>\n          </div>\n          <div class=\"custom-control custom-radio\">\n            <input id=\"debit\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" required=\"\">\n            <label class=\"custom-control-label\" for=\"debit\">Debit card</label>\n          </div>\n          <div class=\"custom-control custom-radio\">\n            <input id=\"paypal\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" required=\"\">\n            <label class=\"custom-control-label\" for=\"paypal\">Paypal</label>\n          </div>\n        </div>\n        <div class=\"row\">\n          <div class=\"col-md-6 mb-3\">\n            <label for=\"cc-name\">Name on card</label>\n            <input type=\"text\" class=\"form-control\" id=\"cc-name\" placeholder=\"\" required=\"\">\n            <small class=\"text-muted\">Full name as displayed on card</small>\n            <div class=\"invalid-feedback\">\n              Name on card is required\n            </div>\n          </div>\n          <div class=\"col-md-6 mb-3\">\n            <label for=\"cc-number\">Credit card number</label>\n            <input type=\"text\" class=\"form-control\" id=\"cc-number\" placeholder=\"\" required=\"\">\n            <div class=\"invalid-feedback\">\n              Credit card number is required\n            </div>\n          </div>\n        </div>\n        <div class=\"row\">\n          <div class=\"col-md-3 mb-3\">\n            <label for=\"cc-expiration\">Expiration</label>\n            <input type=\"text\" class=\"form-control\" id=\"cc-expiration\" placeholder=\"\" required=\"\">\n            <div class=\"invalid-feedback\">\n              Expiration date required\n            </div>\n          </div>\n          <div class=\"col-md-3 mb-3\">\n            <label for=\"cc-expiration\">CVV</label>\n            <input type=\"text\" class=\"form-control\" id=\"cc-cvv\" placeholder=\"\" required=\"\">\n            <div class=\"invalid-feedback\">\n              Security code required\n            </div>\n          </div>\n        </div>\n        <hr class=\"mb-4\">\n        <button class=\"btn btn-primary btn-lg btn-block\" type=\"submit\">Complete Payment</button>\n      </form>\n    </div>\n\n\n  </div>\n</div>\n"
+module.exports = "<div class=\"card my-4\">\n  <h5 class=\"card-header\">Pending Orders</h5>\n  <div class=\"card-body\">\n    <ul class=\"list-group mb-3\">\n      <li *ngFor=\"let k of pendingOrders; let i = index\" class=\"list-group-item d-flex justify-content-between d-flex\">\n        <div class=\"d-inline d-flex d-flex\">\n          <div class=\"text-muted mr-2\">\n            <span> {{k.quantity}} </span>\n            <span> {{k.menu.prices[k.size].type}} </span>\n          </div>\n          <div class=\"d-inline\">\n            <h6 class=\"my-0\">{{k.menu.name}}</h6>\n            <small class=\"text-muted\">{{k.menu.description}}</small>\n          </div>\n        </div>\n        <span class=\"text-muted\">${{k.menu.prices[k.size].price * k.quantity}}</span>\n        <div class=\"ml-2\">\n          <button class=\"btn btn-danger btn-sm\" (click)=\"removeOrder(i)\">X</button>\n        </div>\n      </li>\n      <li class=\"list-group-item d-flex justify-content-between\">\n        <span>Total (USD)</span>\n        <strong>${{getTotal(pendingOrders)}}</strong>\n      </li>\n    </ul>\n    <div class=\"input-group-append float-right\">\n      <button type=\"submit\" class=\"btn btn-secondary\" (click)=\"addToActive()\">Confirm</button>\n    </div>\n  </div>\n</div>\n\n<div class=\"card my-4\">\n  <h5 class=\"card-header\">Active Orders</h5>\n  <div class=\"card-body\">\n    <ul class=\"list-group mb-3\">\n      <li *ngFor=\"let k of activeOrders\" class=\"list-group-item d-flex justify-content-between lh-condensed\">\n        <div class=\"d-inline d-flex d-flex\">\n          <div class=\"text-muted mr-2\">\n            <span> {{k.quantity}} </span>\n            <span> {{k.menu.prices[k.size].type}} </span>\n          </div>\n          <div class=\"d-inline\">\n            <h6 class=\"my-0\">{{k.menu.name}}</h6>\n            <small class=\"text-muted\">{{k.menu.description}}</small>\n          </div>\n        </div>\n        <span class=\"text-muted\">${{k.menu.prices[k.size].price * k.quantity}}</span>\n      </li>\n      <li class=\"list-group-item d-flex justify-content-between\">\n        <span>Total (USD)</span>\n        <strong>${{getTotal(activeOrders)}}</strong>\n      </li>\n      <li class=\"list-group-item d-flex justify-content-between\">\n        <span>Tax (USD)</span>\n        <strong>${{getTax()}}</strong>\n      </li>\n      <li class=\"list-group-item d-flex justify-content-between\">\n        <span>Tip (USD)</span>\n        <input type=\"number\" name=\"tipPercent\" min=\"0.00\" id=\"tipPercent\" class=\"form-control mb-2 ml-2 mr-sm-2\" (input)=\"getTip($event.target.value)\"\n          list=\"menuTypes\" [(ngModel)]=\"tipPercent\">\n        <strong class=\"col-md-2\">%</strong>\n        <datalist id=\"menuTypes\">\n          <option> 10</option>\n        </datalist>\n        <strong>$</strong>\n        <input type=\"number\" name=\"tip\" step='.01' id=\"tip\" class=\"form-control mb-2 ml-2 mr-sm-2\" [(ngModel)]=\"tip\">\n      </li>\n      <li class=\"list-group-item d-flex justify-content-between\">\n        <span>Grand Total (USD)</span>\n        <strong>${{ getGrandTotal() }}</strong>\n      </li>\n\n    </ul>\n\n    <div class=\"input-group-append float-right\">\n      <button type=\"submit\" class=\"btn btn-secondary \" href=\"#checkOut\" (click)=\"closeOrder()\">Pay and close order</button>\n    </div>\n  </div>\n</div>\n\n<div id=\"checkOut\" *ngIf=\"showCheckOut\" class=\"card my-4\">\n  <h5 class=\"card-header\">Check Out</h5>\n  <div class=\"card-body\">\n    <div class=\"col order-md-1\">\n      <form class=\"needs-validation\" novalidate=\"\">\n\n        <h4 class=\"mb-3\">Payment</h4>\n\n        <div class=\"d-block my-3\">\n          <div class=\"custom-control custom-radio\">\n            <input id=\"credit\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" checked=\"\" required=\"\">\n            <label class=\"custom-control-label\" for=\"credit\">Credit card</label>\n          </div>\n          <div class=\"custom-control custom-radio\">\n            <input id=\"debit\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" required=\"\">\n            <label class=\"custom-control-label\" for=\"debit\">Debit card</label>\n          </div>\n          <div class=\"custom-control custom-radio\">\n            <input id=\"paypal\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" required=\"\">\n            <label class=\"custom-control-label\" for=\"paypal\">Paypal</label>\n          </div>\n        </div>\n        <div class=\"row\">\n          <div class=\"col-md-6 mb-3\">\n            <label for=\"cc-name\">Name on card</label>\n            <input type=\"text\" class=\"form-control\" id=\"cc-name\" placeholder=\"\" required=\"\">\n            <small class=\"text-muted\">Full name as displayed on card</small>\n            <div class=\"invalid-feedback\">\n              Name on card is required\n            </div>\n          </div>\n          <div class=\"col-md-6 mb-3\">\n            <label for=\"cc-number\">Credit card number</label>\n            <input type=\"text\" class=\"form-control\" id=\"cc-number\" placeholder=\"\" required=\"\">\n            <div class=\"invalid-feedback\">\n              Credit card number is required\n            </div>\n          </div>\n        </div>\n        <div class=\"row\">\n          <div class=\"col-md-3 mb-3\">\n            <label for=\"cc-expiration\">Expiration</label>\n            <input type=\"text\" class=\"form-control\" id=\"cc-expiration\" placeholder=\"\" required=\"\">\n            <div class=\"invalid-feedback\">\n              Expiration date required\n            </div>\n          </div>\n          <div class=\"col-md-3 mb-3\">\n            <label for=\"cc-expiration\">CVV</label>\n            <input type=\"text\" class=\"form-control\" id=\"cc-cvv\" placeholder=\"\" required=\"\">\n            <div class=\"invalid-feedback\">\n              Security code required\n            </div>\n          </div>\n        </div>\n        <hr class=\"mb-4\">\n        <button class=\"btn btn-primary btn-lg btn-block\" type=\"submit\" (click)=\"completePayment()\">Complete Payment</button>\n      </form>\n    </div>\n\n\n  </div>\n</div>\n"
 
 /***/ }),
 
@@ -785,12 +877,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var moment = __webpack_require__("../../../../moment/moment.js");
 var customer_service_1 = __webpack_require__("../../../../../src/app/services/customer.service.ts");
+var order_complete_component_1 = __webpack_require__("../../../../../src/app/app-customer/orders/order-complete/order-complete.component.ts");
+var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap/index.js");
 var OrdersComponent = /** @class */ (function () {
-    function OrdersComponent(customerService) {
+    function OrdersComponent(customerService, modalService) {
         this.customerService = customerService;
+        this.modalService = modalService;
         this.taxRate = 7;
         this.tip = 0.0;
-        this.showCheckOut = false;
+        this.showCheckOut = true;
     }
     OrdersComponent.prototype.addToActive = function () {
         var _this = this;
@@ -851,11 +946,33 @@ var OrdersComponent = /** @class */ (function () {
             if (data["success"]) {
                 console.log("Order Successfully closed");
                 _this.showCheckOut = true;
-                //show the billing modal
-                //websocket call
             }
             else {
                 console.log("Problems Closing the order");
+            }
+        });
+    };
+    OrdersComponent.prototype.completePayment = function () {
+        var _this = this;
+        var paymentData = {
+            tax: this.getTax(),
+            tip: this.tip
+        };
+        var orderedMenus = new Set();
+        var reviewMenus = [];
+        for (var i = 0; i < this.activeOrders.length; i++) {
+            if (!orderedMenus.has(this.activeOrders[i]['menuId'])) {
+                orderedMenus.add(this.activeOrders[i]['menuId']);
+                reviewMenus.push(this.activeOrders[i]);
+            }
+        }
+        this.customerService.completePayment(paymentData)
+            .subscribe(function (data) {
+            if (data["success"]) {
+                console.log(reviewMenus);
+                var modalRef = _this.modalService.open(order_complete_component_1.OrderCompleteComponent, { size: "lg" });
+                modalRef.componentInstance.activeOrders = reviewMenus;
+                modalRef.componentInstance.orderId = data["orderId"];
             }
         });
     };
@@ -873,7 +990,8 @@ var OrdersComponent = /** @class */ (function () {
             selector: 'orders',
             template: __webpack_require__("../../../../../src/app/app-customer/orders/orders.component.html")
         }),
-        __metadata("design:paramtypes", [customer_service_1.CustomerService])
+        __metadata("design:paramtypes", [customer_service_1.CustomerService,
+            ng_bootstrap_1.NgbModal])
     ], OrdersComponent);
     return OrdersComponent;
 }());
@@ -989,9 +1107,10 @@ var AddOrderComponent = /** @class */ (function () {
     }
     AddOrderComponent.prototype.addOrder = function (menuIndex, quantity, size) {
         var _this = this;
+        console.log(this.data.menus[menuIndex]);
         var order = {
             orderType: "WAITRESS",
-            menuId: this.data.menus[menuIndex].menuId,
+            menuId: this.data.menus[menuIndex]['_id']['$oid'],
             date: moment().toISOString(),
             quantity: quantity,
             size: size ? size : 0,
@@ -1109,27 +1228,30 @@ var AppWaitressComponent = /** @class */ (function () {
         this.waitressService.getAllActiveOrders()
             .subscribe(function (data) {
             if (data["success"]) {
-                var orders = data["orders"];
-                console.log(orders);
+                var tempOrders = data["orders"];
+                console.log(tempOrders);
                 console.log(menus);
-                for (var i = 0; i < orders.length; i++) {
+                for (var i = 0; i < tempOrders.length; i++) {
                     var ordersArray = [];
-                    var tableOrders = orders[i].orders;
+                    var tableOrders = tempOrders[i].orders;
+                    console.log(tableOrders);
                     for (var j = 0; j < tableOrders.length; j++) {
                         tableOrders[j].menu = _this.menus[tableOrders[j].menuId];
                         ordersArray.push(tableOrders[j]);
                         _this.orders.push({
-                            orderNo: orders[i].orderNo,
-                            tableNo: orders[i].tableNo,
+                            orderNo: tempOrders[i].orderNo,
+                            orderId: tempOrders[i]['_id']['$oid'],
+                            tableNo: tempOrders[i].tableNo,
                             quantity: tableOrders[j].quantity,
                             size: tableOrders[j].menu.prices[tableOrders[j].size].type,
-                            server: orders[i].server,
+                            server: tempOrders[i].server,
                             menu: tableOrders[j].menu
                         });
                     }
                     _this.ordersByTable.push({
-                        orderNo: orders[i].orderNo,
-                        tableNo: orders[i].tableNo,
+                        orderNo: tempOrders[i].orderNo,
+                        tableNo: tempOrders[i].tableNo,
+                        orderId: tempOrders[i]['_id']['$oid'],
                         orders: ordersArray
                     });
                 }
@@ -1147,7 +1269,7 @@ var AppWaitressComponent = /** @class */ (function () {
     };
     AppWaitressComponent.prototype.cancelOrder = function (tableIndex, OrderIndex) {
         var _this = this;
-        this.waitressService.cancelOrder({ orderId: this.ordersByTable[tableIndex].orderNo, cancelId: this.ordersByTable[tableIndex].orders[OrderIndex].date })
+        this.waitressService.cancelOrder({ orderId: this.ordersByTable[tableIndex].orderId, cancelId: this.ordersByTable[tableIndex].orders[OrderIndex].date })
             .subscribe(function (data) {
             if (data["success"]) {
                 var orderMenu = _this.ordersByTable[tableIndex].orders[OrderIndex].menu;
@@ -1196,9 +1318,6 @@ var AppWaitressComponent = /** @class */ (function () {
             orders: this.orders,
             ordersByTable: this.ordersByTable
         };
-        this.socketService.hubConnection
-            .invoke('test', "Testing 1 2 3!")
-            .catch(function (err) { return console.error(err); });
     };
     __decorate([
         core_1.Input(),
@@ -1423,6 +1542,7 @@ var Menu = /** @class */ (function () {
         this.prices = [];
         this.ingredients = [];
         this.nutrition = new nutrition_1.Nutrition();
+        this.reviews = new Review();
     }
     return Menu;
 }());
@@ -1433,6 +1553,12 @@ var Price = /** @class */ (function () {
     return Price;
 }());
 exports.Price = Price;
+var Review = /** @class */ (function () {
+    function Review() {
+    }
+    return Review;
+}());
+exports.Review = Review;
 
 
 /***/ }),
@@ -1711,11 +1837,23 @@ var CustomerService = /** @class */ (function () {
             .map(function (res) { return res.json(); });
     };
     CustomerService.prototype.closeOrder = function () {
-        return this.http.get(this.apiUrl + "closeOrder/", this.options)
+        return this.http.get(this.apiUrl + "closeOrder", this.options)
             .map(function (res) { return res.json(); });
     };
     CustomerService.prototype.cancelOrder = function (data) {
-        return this.http.post(this.apiUrl + "closeOrder", data, this.options)
+        return this.http.post(this.apiUrl + "cancelOrder", data, this.options)
+            .map(function (res) { return res.json(); });
+    };
+    CustomerService.prototype.completePayment = function (data) {
+        return this.http.post(this.apiUrl + "completeOrder", data, this.options)
+            .map(function (res) { return res.json(); });
+    };
+    CustomerService.prototype.addReview = function (data) {
+        return this.http.post(this.apiUrl + "addReview", data, this.options)
+            .map(function (res) { return res.json(); });
+    };
+    CustomerService.prototype.emailReceipt = function (data) {
+        return this.http.post(this.apiUrl + "emailReceipt", data, this.options)
             .map(function (res) { return res.json(); });
     };
     CustomerService = __decorate([

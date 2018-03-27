@@ -1,4 +1,4 @@
-#!/Users/beeshall/Documents/Senior Project/Python-Server/venv/bin/python
+#!/Users/beeshall/Documents/POS/Python-Server/venv/bin/python
 
 import sys
 import getopt

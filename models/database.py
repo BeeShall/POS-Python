@@ -62,7 +62,7 @@ class Mongo_Client(object):
 			return None
 
 	@classmethod
-	def GetMenu(cls,menuId):
+	def GetMenu(cls, menuId):
 		try:
 			cursor = cls.db["menu"].find({"menuId": menuId})
 			return cursor[0]
@@ -71,7 +71,7 @@ class Mongo_Client(object):
 			return None
 
 	@classmethod
-	def AddMenu(cls,menu):
+	def AddMenu(cls, menu):
 		try:
 			result = cls.db["menu"].insert_one(menu)
 			return str(result.inserted_id)
@@ -80,7 +80,7 @@ class Mongo_Client(object):
 			return None
 
 	@classmethod
-	def UpdateMenu(cls,menu):
+	def UpdateMenu(cls, menu):
 		try:
 			result = cls.db["menu"].replace_one({"_id": ObjectId(menu["menuId"])}, {
 				"$set": menu}, upsert=True)
@@ -93,7 +93,7 @@ class Mongo_Client(object):
 			return False
 
 	@classmethod
-	def DeleteMenu(cls,menu):
+	def DeleteMenu(cls, menu):
 		try:
 			result = cls.db["menu"].delete_one(
 				{"_id": ObjectId(menu["menuId"])})
@@ -187,10 +187,11 @@ class Mongo_Client(object):
 				"$push": {
 					"orders": {
 						"$each": orders
-						}
 					}
 				}
-			result = cls.db["orders"].update_one({"_id": ObjectId(orderId)},update)
+			}
+			result = cls.db["orders"].update_one(
+				{"_id": ObjectId(orderId)}, update)
 			if result.modified_count > 0:
 				return True
 			else:
@@ -200,13 +201,21 @@ class Mongo_Client(object):
 			return False
 
 	@classmethod
-	def GetOrders(cls, orderId):
+	def GetOrdersWithDetails(cls, orderId):
 		try:
 			cursor = cls.db["orders"].find({"_id": ObjectId(orderId)})
-			data = cursor[0]["orders"]
+			data = cursor[0]
 			return data
 		except Exception as e:
 			print("Exception while getting order", e.message)
+			return None
+
+	@classmethod
+	def GetOrders(cls, orderId):
+		orders = cls.GetOrdersWithDetails(orderId)
+		if orders is not None:
+			return orders['orders']
+		else:
 			return None
 
 	@classmethod
@@ -220,10 +229,12 @@ class Mongo_Client(object):
 			return None
 
 	@classmethod
-	def CloseOrder(cls, orderNo):
+	def CloseOrder(cls, orderId):
 		try:
-			update = {"$set": {"status":"COMPLETED"}}
-			result = cls.db["orders"].update_one({"orderNo": int(orderNo)},update)
+			update = {"$set": {"status": "COMPLETED"}}
+			result = cls.db["orders"].update_one(
+				{"_id": ObjectId(orderId)}, update)
+			print(result.matched_count)
 			if result.modified_count > 0:
 				return True
 			else:
@@ -233,17 +244,18 @@ class Mongo_Client(object):
 			return False
 
 	@classmethod
-	def CancelOrder(cls, orderNo, cancelId):
+	def CancelOrder(cls, orderId, cancelId):
 		try:
-			print(orderNo)
+			print(orderId)
 			update = {
 				"$pull": {
 					"orders": {
-							"date":cancelId
-						}
+						"date": cancelId
 					}
 				}
-			result = cls.db["orders"].update_one({"orderNo": orderNo},update)
+			}
+			result = cls.db["orders"].update_one(
+				{"_id": ObjectId(orderId)}, update)
 			if result.modified_count > 0:
 				return True
 			else:
@@ -253,12 +265,36 @@ class Mongo_Client(object):
 			return False
 
 	@classmethod
+	def CompleteOrder(cls, orderId, data):
+		try:
+			update = {"$set": data}
+			result = cls.db["orders"].update_one(
+				{"_id": ObjectId(orderId)}, update, upsert=True)
+			if result.modified_count > 0:
+				return True
+			else:
+				return False
+		except Exception as e:
+			print("Exception while closing order", e.message)
+			return False
+
+	@classmethod
 	def AddReview(cls, menuId, review):
 		try:
-			pass
+			update = {
+				"$push": {
+					"reviews": review
+				}
+			}
+			result = cls.db["menu"].update_one(
+				{"_id": ObjectId(menuId)}, update)
+			if result.modified_count > 0:
+				return True
+			else:
+				return False
 		except Exception as e:
-			print("Exception while adding reviews", e.message)
-			return None
+			print("Exception while adding review", e.message)
+			return False
 
 	@classmethod
 	def GetReviews(cls, menuId):

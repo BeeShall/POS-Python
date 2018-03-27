@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Invoice</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style type="text/css">
+		#invoice-POS {
+			box-shadow: 0 0 1in -0.25in rgba(0, 0, 0, 0.5);
+			padding: 2mm;
+			width: 50%;
+			margin: 0 auto;
+			background: #FFF;
+			text-align: center;
+		}
+
+		#invoice-POS ::selection {
+			background: #f31544;
+			color: #FFF;
+		}
+
+		#invoice-POS ::moz-selection {
+			background: #f31544;
+			color: #FFF;
+		}
+
+		#invoice-POS #top,
+		#invoice-POS #mid,
+		#invoice-POS #bot {
+			/* Targets all id with 'col-' */
+			border-bottom: 1px solid #EEE;
+		}
+
+		#invoice-POS #mid {
+			min-height: 80px;
+		}
+
+		#invoice-POS #bot {
+			min-height: 50px;
+		}
+
+
+		#invoice-POS .info {
+			display: block;
+			margin-left: 0;
+		}
+
+		#invoice-POS .title {
+			float: right;
+		}
+
+		#invoice-POS .title p {
+			text-align: right;
+		}
+
+		#invoice-POS table {
+			width : 90%;
+			border-collapse: collapse;
+			margin: 20px;
+			padding: 20px;
+		}
+
+		#invoice-POS .tabletitle {
+			font-size: .7em;
+			background: #EEE;
+		}
+
+		#invoice-POS .service {
+			border-bottom: 1px solid #EEE;
+		}
+
+		#invoice-POS .itemtext {
+			font-size: .7em;
+		}
+
+		#invoice-POS #legalcopy {
+			margin-top: 5mm;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="invoice-POS">
+
+		<center id="top">
+			<div class="logo"></div>
+			<div class="info">
+				<h2>Rosa's Italian and Mexican</h2>
+			</div>
+			<!--End Info-->
+		</center>
+		<!--End InvoiceTop-->
+		<div>
+			<h2>Order No: </h2> <span>{{data.orderNo}}</span>
+		</div>
+
+		<div id="mid">
+			<div class="info">
+				<h2>Contact Info</h2>
+				<p>
+					Address : street city, state 0000</br>
+					Email : seniorprojectramapo@gmail.com</br>
+					Phone : 555-555-5555</br>
+				</p>
+
+			</div>
+		</div>
+		<!--End Invoice Mid-->
+
+		<div id="bot">
+
+			<div id="table">
+				<table>
+					<tr class="tabletitle">
+						<td class="item">
+							<h2>Item</h2>
+						</td>
+						<td class="Hours">
+							<h2>Qty</h2>
+						</td>
+						<td class="Rate">
+							<h2>Rate</h2>
+						</td>
+						<td class="Rate">
+							<h2>Sub Total</h2>
+						</td>
+					</tr>
+
+					{% for item in data.data %}
+					<tr class="service">
+						<td class="tableitem">
+							<p class="itemtext">{{item.item}}</p>
+						</td>
+						<td class="tableitem">
+							<p class="itemtext">{{item.quantity}}</p>
+						</td>
+						<td class="tableitem">
+							<p class="itemtext">{{item.rate}}</p>
+						</td>
+						<td class="tableitem">
+							<p class="itemtext">${{item.total}}/p>
+						</td>
+					</tr>
+					{% endfor %}
+
+
+					<tr class="tabletitle">
+						<td></td>
+						<td></td>
+						<td class="Rate">
+							<h2>Tax</h2>
+						</td>
+						<td class="payment">
+							<h2>${{data.tax}}</h2>
+						</td>
+					</tr>
+
+					<tr class="tabletitle">
+						<td></td>
+						<td></td>
+						<td class="Rate">
+							<h2>Tip</h2>
+						</td>
+						<td class="payment">
+							<h2>${{data.tip}}</h2>
+						</td>
+					</tr>
+
+					<tr class="tabletitle">
+						<td></td>
+						<td></td>
+						<td class="Rate">
+							<h2>Total</h2>
+						</td>
+						<td class="payment">
+							<h2>${{data.grandTotal}}</h2>
+						</td>
+					</tr>
+
+				</table>
+			</div>
+			<!--End Table-->
+
+			<div id="legalcopy">
+				<p class="legal">
+					<strong>Thank you for your business!</strong>  Please visit us again!
+				</p>
+				<p> Your server today was : <strong> {{data.server}} </strong></p>
+			</div>
+
+		</div>
+		<!--End InvoiceBot-->
+	</div>
+	<!--End Invoice-->
+
+</body>
+
+</html>
