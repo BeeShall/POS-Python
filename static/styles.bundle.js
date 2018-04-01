@@ -528,7 +528,7 @@ function updateLink(linkElement, obj) {
 
 /***/ }),
 
-/***/ 3:
+/***/ 2:
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__("../../../../bootstrap/dist/css/bootstrap.min.css");
@@ -538,5 +538,5 @@ module.exports = __webpack_require__("../../../../../src/styles.css");
 
 /***/ })
 
-},[3]);
+},[2]);
 //# sourceMappingURL=styles.bundle.js.map

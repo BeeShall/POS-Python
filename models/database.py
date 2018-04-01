@@ -7,6 +7,8 @@ class Mongo_Client(object):
 
 	db = None
 	orderCount = 0
+	loggedInUsers = []
+	serverIndex = 0
 
 	@classmethod
 	def CreateConnection(cls, db_address='mongodb://localhost:27017', db_name="PosDb"):
@@ -17,7 +19,7 @@ class Mongo_Client(object):
 
 	@classmethod
 	def InitializeDB(cls):
-		col = ["users", "menu", "orders", "bills", "reservation"]
+		col = ["users", "menu", "orders", "bills", "reservations", "tables"]
 		dbCols = cls.db.collection_names()
 
 		for i in range(0, len(col)):
@@ -108,8 +110,9 @@ class Mongo_Client(object):
 	@classmethod
 	def AddEmployee(cls, employee):
 		try:
-			employee["username"] = cls.GenerateUserName(
-				employee['fName'], employee['lName'])
+			employee["username"] = cls.GenerateUserName(employee['fName'], employee['lName'])
+			employee["password"] = Hasher.HashPassword(employee['lName'])
+			print(employee["password"])
 			cls.db["users"].insert_one(employee)
 			return employee["username"]
 		except Exception as e:
@@ -120,13 +123,13 @@ class Mongo_Client(object):
 	def GenerateUserName(cls, fName, lName):
 		username = fName.lower() + lName.lower()
 		try:
-			filt = ".*" + username + ".*"
+			filt = { "$regex" : "^"+username }
 			cursor = cls.db["users"].find({"username": filt})
 			usernames = list(cursor)
 			if len(usernames) == 0:
 				return username
 			else:
-				return username+len(usernames)
+				return username+str(len(usernames))
 
 		except Exception as e:
 			print("Exception while generating username", e.message)
@@ -178,6 +181,35 @@ class Mongo_Client(object):
 			return orderId
 		except Exception as e:
 			print("Exception while starting order", e.message)
+			return None
+
+	@classmethod
+	def UpdateTable(cls, tableNo, orderId):
+		try:
+			table_data = {
+				"tableNo":tableNo,
+				"orderId":orderId
+			}
+			cls.db["tables"].update_one({"tableNo": tableNo}, {
+				"$set": table_data}, upsert=True)
+		except Exception as e:
+			print("Exception while updating table", e.message)
+
+	@classmethod
+	def ClearTableWithOrderNo(cls, orderId):
+		try:
+			cls.db["tables"].update_one({"orderId": orderId}, {
+				"$set": {"orderId" : None}})
+		except Exception as e:
+			print("Exception while clearing tables", e.message)
+
+	@classmethod
+	def GetOrderNoForTable(cls, tableNo):
+		try:
+			cursor = cls.db["tables"].find({"tableNo":tableNo})
+			return cursor[0]["orderId"]
+		except Exception as e:
+			print("Exception while getting orderNo for table", e.message)
 			return None
 
 	@classmethod
@@ -307,15 +339,28 @@ class Mongo_Client(object):
 	@classmethod
 	def AddReservation(cls, reservation):
 		try:
-			pass
+			cls.db["reservations"].insert_one(reservation)
+			return True
 		except Exception as e:
 			print("Exception while adding Reservation", e.message)
+			return False
+
+	@classmethod
+	def GetReservations(cls, date):
+		try:
+			filt = {"date": {"$gte" : date}}
+			cursor = cls.db["reservations"].find(filt, {'_id': False})
+			return list(cursor)
+		except Exception as e:
+			print("Exception while fetching reservations", e.message)
 			return None
 
 	@classmethod
-	def GetReservations(cls):
+	def CancelReservations(cls, date, number):
 		try:
-			pass
+			filt = {"date": {"$gte" : date}, "number":number}
+			cursor = cls.db["reservations"].delete_one(filt)
+			return list(cursor)
 		except Exception as e:
 			print("Exception while fetching reservations", e.message)
 			return None

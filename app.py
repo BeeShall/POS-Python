@@ -8,6 +8,7 @@ from routes.auth import auth
 from routes.employees import employees
 from routes.menus import menus
 from routes.orders import orders
+from routes.reservation import reservation
 
 static_folder = os.path.join(os.pardir, 'static')
 
@@ -19,6 +20,7 @@ app.register_blueprint(auth)
 app.register_blueprint(employees)
 app.register_blueprint(menus)
 app.register_blueprint(orders)
+app.register_blueprint(reservation)
 
 
 Mongo_Client.CreateConnection()

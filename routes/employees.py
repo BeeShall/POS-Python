@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, session, Response, request, redirect
 import json
 from bson import json_util
 from flask_cors import CORS, cross_origin
@@ -17,7 +17,7 @@ def addEmployee():
 	if username is not None:
 		return json.dumps({
 			"success":True,
-			"username":username
+			"username":username,
 		})
 	else:
 		return json.dumps({

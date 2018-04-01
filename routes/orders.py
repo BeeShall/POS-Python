@@ -16,20 +16,31 @@ def startOrder():
 	if 'orderNo' not in session:
 		tableNo = request.args.get('tableNo')
 		print("tableNo", tableNo)
-		orders = {
-			"orders": [],
-			"tableNo": tableNo,
-			"status": "INITIATED",
-			"server": "BISHAL"
-		}
 
-		orderNo = Mongo_Client.StartOrder(orders)
-		if orderNo is not None:
-			session['orderNo'] = orderNo
-			print("New order", orderNo)
+		#checking if already on table
+		orderId = Mongo_Client.GetOrderNoForTable(tableNo) 
+		if orderId is not None:
+			session['orderNo'] = orderId
+			print("Table already occupied! orderNo:", orderId)
 			return redirect("/customer")
 		else:
-			return redirect("/xx")
+
+			#get the server from the array to track turn and set it
+			orders = {
+				"orders": [],
+				"tableNo": tableNo,
+				"status": "INITIATED",
+				"server": "BISHAL"
+			}
+
+			orderNo = Mongo_Client.StartOrder(orders)
+			if orderNo is not None:
+				Mongo_Client.UpdateTable(tableNo,orderNo)
+				session['orderNo'] = orderNo
+				print("New order", orderNo)
+				return redirect("/customer")
+			else:
+				return redirect("/xx")
 	else:
 		print("orderNo in session")
 		return redirect("/customer")
@@ -165,6 +176,7 @@ def completeOrder():
 
 	if Mongo_Client.UpdateOrder(orderNo, values):
 		session.pop("orderNo", None)
+		Mongo_Client.ClearTableWithOrderNo(orderNo)
 		return json.dumps({
 			"success": True,
 			"orderId": orderNo

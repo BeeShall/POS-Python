@@ -67,7 +67,7 @@ class ReceiptGenerator(object):
 				"item": menuMap[order[i]['menuId']]['name'],
 				"quantity": quantity,
 				"rate": rate,
-				"total" : rate*quantity
+				"total" : float(rate)*float(quantity)
 			})
 
 		data = {
