@@ -332,10 +332,12 @@ var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap
 var menu_1 = __webpack_require__("../../../../../src/app/dataModels/menu.ts");
 var menu_service_1 = __webpack_require__("../../../../../src/app/services/menu.service.ts");
 var nutrition_1 = __webpack_require__("../../../../../src/app/dataModels/nutrition.ts");
+var fileUpload_service_1 = __webpack_require__("../../../../../src/app/services/fileUpload.service.ts");
 var AddMenuComponent = /** @class */ (function () {
-    function AddMenuComponent(activeModal, menuService) {
+    function AddMenuComponent(activeModal, menuService, fileUploadService) {
         this.activeModal = activeModal;
         this.menuService = menuService;
+        this.fileUploadService = fileUploadService;
         this.menuTypes = menu_1.MenuType;
         this.sizeList = menu_1.SizeList;
         this.dailyValues = nutrition_1.DailyValues;
@@ -343,22 +345,40 @@ var AddMenuComponent = /** @class */ (function () {
     AddMenuComponent.prototype.ngOnInit = function () {
         if (this.newAdd) {
             this.menu = new menu_1.Menu();
+            this.images = [];
+        }
+        else {
+            this.images = this.menu.images;
         }
     };
     AddMenuComponent.prototype.addImage = function (uploader) {
         var files = uploader.target.files;
         for (var i = 0; i < files.length; i++) {
-            this.menu.images.push(files[i]);
+            this.images.push(files[i]);
         }
         console.log(files);
-        console.log(this.menu.images);
+        console.log(this.images);
     };
     AddMenuComponent.prototype.removeImage = function (index) {
-        this.menu.images.splice(index, 1);
+        //remove from firebase as well
+        this.images.splice(index, 1);
     };
     AddMenuComponent.prototype.submit = function () {
         var _this = this;
         console.log(this.menu);
+        console.log(this.images);
+        for (var i = 0; i < this.images.length; i++) {
+            this.fileUploadService.pushUpload(this.images[i]);
+            var data = {
+                "name": this.images[i].name,
+                "url": "https://firebasestorage.googleapis.com/v0/b/seniorproject-45c7b.appspot.com/o/" + this.images[i].name + "?alt=media"
+            };
+            console.log(data);
+            if (data != null) {
+                this.menu.images.push(data);
+            }
+        }
+        //add pictures
         if (this.newAdd) {
             this.menuService.addMenu(this.menu)
                 .subscribe(function (data) {
@@ -405,7 +425,8 @@ var AddMenuComponent = /** @class */ (function () {
             styles: [__webpack_require__("../../../../../src/app/app-admin/menu/add-menu/add-menu.component.css")]
         }),
         __metadata("design:paramtypes", [ng_bootstrap_1.NgbActiveModal,
-            menu_service_1.MenuService])
+            menu_service_1.MenuService,
+            fileUpload_service_1.FileUploadService])
     ], AddMenuComponent);
     return AddMenuComponent;
 }());
@@ -417,7 +438,7 @@ exports.AddMenuComponent = AddMenuComponent;
 /***/ "../../../../../src/app/app-admin/menu/menu.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"text-center\">\n  <nav class=\"navbar navbar-light bg-faded\">\n    <form class=\"form-inline\">\n      <input type=\"text\" class=\"form-control input-lg\" name=\"searchString\" placeholder=\"Type to search...\" [(ngModel)]=\"searchString\">\n      <button class=\"btn btn-outline-primary m-2\" (click)=\"openAddMenu()\">Add</button>\n    </form>\n  </nav>\n  <table class=\"table table-hover table-responsive text-center\">\n    <thead>\n      <tr>\n        <th>Name</th>\n        <th>Description</th>\n        <th>MenuType</th>\n      </tr>\n    </thead>\n    <tbody>\n      <tr *ngFor=\"let menu of menus| filter : 'name' : searchString; let i = index;\">\n        <td>{{menu.name}}</td>\n        <td>{{menu.description}}</td>\n        <td>{{menu.menutype}}</td>\n        <td>\n          <button class=\"btn btn-info\" (click)=\"viewDetails(menu)\">View Details/Edit</button>\n        </td>\n        <td>\n          <button class=\"btn btn-danger\" (click)=\"delete(menu.menuId, i)\">Delete</button>\n        </td>\n      </tr>\n    </tbody>\n  </table>\n</div>\n"
+module.exports = "<div class=\"text-center\">\n  <nav class=\"navbar navbar-light bg-faded\">\n    <form class=\"form-inline\">\n      <input type=\"text\" class=\"form-control input-lg\" name=\"searchString\" placeholder=\"Type to search...\" [(ngModel)]=\"searchString\">\n      <button class=\"btn btn-outline-primary m-2\" (click)=\"openAddMenu()\">Add</button>\n    </form>\n  </nav>\n  <table class=\"table table-hover table-responsive text-center\">\n    <thead>\n      <tr>\n        <th>Name</th>\n        <th>Description</th>\n        <th>MenuType</th>\n      </tr>\n    </thead>\n    <tbody>\n      <tr *ngFor=\"let menu of menus| filter : 'name' : searchString; let i = index;\">\n        <td>{{menu.name}}</td>\n        <td>{{menu.description}}</td>\n        <td>{{menu.menutype}}</td>\n        <td>\n          <button class=\"btn btn-info\" (click)=\"viewDetails(menu)\">View Details/Edit</button>\n        </td>\n        <td>\n          <button class=\"btn btn-danger\" (click)=\"delete(menu['_id']['$oid'], i)\">Delete</button>\n        </td>\n      </tr>\n    </tbody>\n  </table>\n</div>\n"
 
 /***/ }),
 
@@ -448,6 +469,7 @@ var MenuComponent = /** @class */ (function () {
         this.menuService.getAllMenu()
             .subscribe(function (data) {
             _this.menus = data["menus"];
+            console.log(_this.menus);
         });
     }
     MenuComponent.prototype.ngOnInit = function () {
@@ -626,10 +648,28 @@ exports.AppCustomerModule = AppCustomerModule;
 
 /***/ }),
 
+/***/ "../../../../../src/app/app-customer/display-menu/display-menu.component.css":
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__("../../../../css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "\nimg {\n\tdisplay: block;\n\tmax-width: 100%;\n\theight: auto;\n  }\n  ", ""]);
+
+// exports
+
+
+/*** EXPORTS FROM exports-loader ***/
+module.exports = module.exports.toString();
+
+/***/ }),
+
 /***/ "../../../../../src/app/app-customer/display-menu/display-menu.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<ngb-accordion #acc=\"ngbAccordion\" activeIds=\"ngb-panel-0\">\n  <ngb-panel *ngFor=\"let section of sections\" title=\"{{section}}\">\n    <ng-template ngbPanelContent>\n\n      <div class=\"album py-5 bg-light\">\n        <div class=\"container\">\n          <div class=\"row\">\n\n            <div *ngFor=\"let menu of dispMenu[section]\" class=\"col-md-4\">\n              <div class=\"card mb-4 box-shadow\">\n                <img class=\"card-img-top\" data-src=\"holder.js/100px225?theme=thumb&amp;bg=55595c&amp;fg=eceeef&amp;text=Thumbnail\" alt=\"Thumbnail [100%x225]\"\n                  style=\"height: 225px; width: 100%; display: block;\" src=\"data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22508%22%20height%3D%22225%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20508%20225%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_161b452529a%20text%20%7B%20fill%3A%23eceeef%3Bfont-weight%3Abold%3Bfont-family%3AArial%2C%20Helvetica%2C%20Open%20Sans%2C%20sans-serif%2C%20monospace%3Bfont-size%3A25pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_161b452529a%22%3E%3Crect%20width%3D%22508%22%20height%3D%22225%22%20fill%3D%22%2355595c%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22169.7578125%22%20y%3D%22123.6%22%3EThumbnail%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E\"\n                  data-holder-rendered=\"true\">\n                <div class=\"card-body\">\n                  <p class=\"card-text\">{{menu.name}}</p>\n                  <p class=\"card-text\">{{menu.description}}</p>\n                  <div class=\"d-flex justify-content-between align-items-center\">\n                    <div>\n                      <div>\n                        <select *ngIf=\"menu.prices.length > 1\" [(ngModel)]=\"priceIndex\" class=\"form-control mb-2 mr-sm-2\">\n                          <option *ngFor=\"let price of menu.prices; let i = index\" value=\"{{i}}\">{{price.type}}</option>\n                        </select>\n                      </div>\n                      <div>\n                        <select [(ngModel)]=\"quantity\" class=\"form-control mb-2 mr-sm-2\">\n                          <option *ngFor=\"let index of numbers\" value=\"{{index}}\">{{index}}</option>\n                        </select>\n                      </div>\n                      <div>\n\n                      </div>\n                    </div>\n\n                    <small class=\"text-muted\">$ {{ (quantity ) ? ((menu.prices.length > 1 && priceIndex) ? menu.prices[priceIndex].price :menu.prices[0].price) * quantity : 0 }}</small>\n                  </div>\n                  <div class=\"d-flex justify-content-between align-items-center\">\n                    <div class=\"btn-group\">\n                      <button type=\"button\" class=\"btn btn-sm btn-outline-secondary\" (click)=\"openDetails(menu)\">View</button>\n                      <button type=\"button\" class=\"btn btn-sm btn-outline-secondary\" (click)=\"addToOrders(menu, quantity, priceIndex)\">Add</button>\n                    </div>\n\n                  </div>\n                </div>\n              </div>\n            </div>\n\n          </div>\n        </div>\n      </div>\n\n\n    </ng-template>\n  </ngb-panel>\n</ngb-accordion>\n"
+module.exports = "<ngb-accordion #acc=\"ngbAccordion\" activeIds=\"ngb-panel-0\">\n  <ngb-panel *ngFor=\"let section of sections\" title=\"{{section}}\">\n    <ng-template ngbPanelContent>\n\n      <div class=\"album py-5 bg-light\">\n        <div class=\"container\">\n          <div class=\"row\">\n\n            <div *ngFor=\"let menu of dispMenu[section]\" class=\"col-md-4\">\n              <div class=\"card mb-4 box-shadow\">\n                <div class=\"container my-2\">\n                  <ngb-carousel *ngFor=\"let image of menu.images\">\n                    <ng-template ngbSlide>\n                      <img [src]=\"image.url\" alt=\"image.name\">\n                    </ng-template>\n                  </ngb-carousel>\n                </div>\n                <div class=\"card-body\">\n                  <p class=\"card-text\">{{menu.name}}</p>\n                  <p class=\"card-text\">{{menu.description}}</p>\n                  <div class=\"d-flex justify-content-between align-items-center\">\n                    <div>\n                      <div>\n                        <select *ngIf=\"menu.prices.length > 1\" [(ngModel)]=\"priceIndex\" class=\"form-control mb-2 mr-sm-2\">\n                          <option *ngFor=\"let price of menu.prices; let i = index\" value=\"{{i}}\">{{price.type}}</option>\n                        </select>\n                      </div>\n                      <div>\n                        <select [(ngModel)]=\"quantity\" class=\"form-control mb-2 mr-sm-2\">\n                          <option *ngFor=\"let index of numbers\" value=\"{{index}}\">{{index}}</option>\n                        </select>\n                      </div>\n                      <div>\n\n                      </div>\n                    </div>\n\n                    <small class=\"text-muted\">$ {{ (quantity ) ? ((menu.prices.length > 1 && priceIndex) ? menu.prices[priceIndex].price :menu.prices[0].price)\n                      * quantity : 0 }}</small>\n                  </div>\n                  <div class=\"d-flex justify-content-between align-items-center\">\n                    <div class=\"btn-group\">\n                      <button type=\"button\" class=\"btn btn-sm btn-outline-secondary\" (click)=\"openDetails(menu)\">View</button>\n                      <button type=\"button\" class=\"btn btn-sm btn-outline-secondary\" (click)=\"addToOrders(menu, quantity, priceIndex)\">Add</button>\n                    </div>\n\n                  </div>\n                </div>\n              </div>\n            </div>\n\n          </div>\n        </div>\n      </div>\n\n\n    </ng-template>\n  </ngb-panel>\n</ngb-accordion>\n"
 
 /***/ }),
 
@@ -692,6 +732,7 @@ var DisplayMenuComponent = /** @class */ (function () {
         core_1.Component({
             selector: 'display-menu',
             template: __webpack_require__("../../../../../src/app/app-customer/display-menu/display-menu.component.html"),
+            styles: [__webpack_require__("../../../../../src/app/app-customer/display-menu/display-menu.component.css")]
         }),
         __metadata("design:paramtypes", [ng_bootstrap_1.NgbModal])
     ], DisplayMenuComponent);
@@ -710,7 +751,7 @@ exports = module.exports = __webpack_require__("../../../../css-loader/lib/css-b
 
 
 // module
-exports.push([module.i, "@charset \"UTF-8\";\nbody {\n  font-size: small;\n  line-height: 1.4;\n}\n.performance-facts__table, .performance-facts__table--small, .performance-facts__table--grid {\n  width: 100%;\n}\n.performance-facts__table td:last-child, .performance-facts__table--small td:last-child, .performance-facts__table--grid td:last-child {\n  text-align: right;\n}\n.performance-facts__table .blank-cell, .performance-facts__table--small .blank-cell, .performance-facts__table--grid .blank-cell {\n  width: 1rem;\n  border-top: 0;\n}\n.performance-facts__table .thick-row th, .performance-facts__table--small .thick-row th, .performance-facts__table--grid .thick-row th, .performance-facts__table .thick-row td, .performance-facts__table--small .thick-row td, .performance-facts__table--grid .thick-row td {\n  border-top-width: 5px;\n}\n.performance-facts__table--small td:last-child {\n  text-align: left;\n}\n.performance-facts__table--grid td:last-child {\n  text-align: left;\n}\n.performance-facts__table--grid td:last-child::before {\n  content: \"\\2022\";\n  font-weight: bold;\n  margin: 0 0.25rem 0 0;\n}\n.thick-end {\n  border-bottom: 10px solid black;\n}\n\n", ""]);
+exports.push([module.i, "@charset \"UTF-8\";\nbody {\n  font-size: small;\n  line-height: 1.4;\n}\nimg {\n  display: block;\n  max-width: 100%;\n  height: auto;\n}\n.performance-facts__table, .performance-facts__table--small, .performance-facts__table--grid {\n  width: 100%;\n}\n.performance-facts__table td:last-child, .performance-facts__table--small td:last-child, .performance-facts__table--grid td:last-child {\n  text-align: right;\n}\n.performance-facts__table .blank-cell, .performance-facts__table--small .blank-cell, .performance-facts__table--grid .blank-cell {\n  width: 1rem;\n  border-top: 0;\n}\n.performance-facts__table .thick-row th, .performance-facts__table--small .thick-row th, .performance-facts__table--grid .thick-row th, .performance-facts__table .thick-row td, .performance-facts__table--small .thick-row td, .performance-facts__table--grid .thick-row td {\n  border-top-width: 5px;\n}\n.performance-facts__table--small td:last-child {\n  text-align: left;\n}\n.performance-facts__table--grid td:last-child {\n  text-align: left;\n}\n.performance-facts__table--grid td:last-child::before {\n  content: \"\\2022\";\n  font-weight: bold;\n  margin: 0 0.25rem 0 0;\n}\n.thick-end {\n  border-bottom: 10px solid black;\n}\n\n", ""]);
 
 // exports
 
@@ -723,7 +764,7 @@ module.exports = module.exports.toString();
 /***/ "../../../../../src/app/app-customer/display-menu/view-details/view-details.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"modal-header\">\n  <h4 class=\"modal-title\">{{menu.name}}</h4>\n  <button type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"activeModal.dismiss('Cross click')\">\n    <span aria-hidden=\"true\">&times;</span>\n  </button>\n</div>\n<div class=\"modal-body m-0\">\n\n  <div class=\"container my-2\">\n    <div class=\"card text-left p-2 mb-3\">\n      <div class=\"lead\">\n        <em>{{menu.description}} </em>\n      </div>\n\n      <div>\n        <span class=\"h5\">Ingredients:</span>\n        <span *ngFor=\"let ing of menu.ingredients\">\n          <em>{{ing}},</em>\n        </span>\n\n      </div>\n      <div class=\"text-left\">\n        <span class=\"h5\"> Prices: </span>\n        <div *ngFor=\"let price of menu.prices\" class=\"ml-4\">\n          <span>{{price.type}}</span> ......\n          <span>${{price.price}}</span>\n        </div>\n      </div>\n    </div>\n\n    <hr>\n\n    <div class=\"m-0 p-0\">\n      <section class=\" border m-0 p-2\">\n        <header class=\"h1\">Nutrition Facts\n        </header>\n        <table class=\"performance-facts__table small\">\n          <tbody>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Calories</b>\n                {{menu.nutrition.calories.calories}}\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                Calories from Fat {{menu.nutrition.calories.caloriesFromFat}}\n              </td>\n            </tr>\n            <tr class=\"thick-row\">\n              <td colspan=\"3\" class=\"small\">\n                <b>% Daily Value*</b>\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Total Fat</b>\n                {{menu.nutrition.fat.fat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.fat.fat/dailyValues.fat).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Saturated Fat {{menu.nutrition.fat.satFat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.fat.satFat/dailyValues.satFat).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Unsaturated Fat {{menu.nutrition.fat.unsatFat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Trans Fat {{menu.nutrition.fat.transFat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Cholesterol</b>\n                {{menu.nutrition.cholestrol}}mg\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.cholestrol/dailyValues.cholestrol).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Sodium</b>\n                {{menu.nutrition.sodium}}mg\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.sodium/dailyValues.sodium).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Total Carbohydrate</b>\n                {{menu.nutrition.carbs.carbs}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.carbs.carbs/dailyValues.carbs).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Dietary Fiber {{menu.nutrition.carbs.fiber}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.carbs.fiber/dailyValues.fiber).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Sugars {{menu.nutrition.carbs.sugar}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n            <tr class=\"thick-end\">\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Protein</b>\n                {{menu.nutrition.protein}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n          </tbody>\n        </table>\n\n        <table class=\"performance-facts__table--grid small\">\n          <tbody>\n            <tr>\n              <td colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                Vitamin A {{menu.nutrition.vitamin.vita}}%\n              </td>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                Vitamin C {{menu.nutrition.vitamin.vitc}}%\n              </td>\n            </tr>\n            <tr class=\"border-bottom\">\n              <td colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                Calcium {{menu.nutrition.calcium}}%\n              </td>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                Iron {{menu.nutrition.iron}}%\n              </td>\n            </tr>\n          </tbody>\n        </table>\n\n        <p class=\"small\">* Percent Daily Values are based on a 2,000 calorie diet. Your daily values may be higher or lower depending on your\n          calorie needs:</p>\n\n        <table class=\"performance-facts__table--small small border-bottom\">\n          <thead>\n            <tr>\n              <td colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\"></td>\n              <th class=\"border-top font-weight-normal text-nowrap\">Calories:</th>\n              <th class=\"border-top font-weight-normal text-nowrap\">2,000</th>\n              <th class=\"border-top font-weight-normal text-nowrap\">2,500</th>\n            </tr>\n          </thead>\n          <tbody>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Total Fat</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">65g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">80g</td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\"></td>\n              <th class=\"border-top font-weight-normal text-nowrap\">Saturated Fat</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">20g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">25g</td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Cholesterol</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">300mg</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">300 mg</td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Sodium</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">2,400mg</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">2,400mg</td>\n            </tr>\n            <tr>\n              <th colspan=\"3\" class=\"border-top font-weight-normal text-nowrap\">Total Carbohydrate</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">300g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">375g</td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\"></td>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Dietary Fiber</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">25g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">30g</td>\n            </tr>\n          </tbody>\n        </table>\n\n        <p class=\"small\">\n          Calories per gram:\n        </p>\n        <p class=\"small text-center\">\n          Fat 9 &bull; Carbohydrate 4 &bull; Protein 4\n        </p>\n\n      </section>\n\n\n    </div>\n  </div>\n\n  <ngb-accordion #acc=\"ngbAccordion\" activeIds=\"ngb-panel-0\">\n    <ngb-panel title=\"Reviews\">\n      <ng-template ngbPanelContent>\n        <div *ngFor=\"let review of menu.reviews \" class=\"card p-2 mb-2 container\">\n          <div>\n            <span class=\"h6\">Rating: </span>\n            <ngb-rating [(rate)]=\"review.rating\" [readonly]=\"true\"></ngb-rating>\n\n          </div>\n          <div>\n            <span class=\"h6\">Review: </span>\n            <p>\n              {{review.review}}\n            </p>\n          </div>\n        </div>\n      </ng-template>\n    </ngb-panel>\n  </ngb-accordion>\n</div>\n<div class=\"modal-footer\">\n  <button type=\"button\" class=\"btn btn-outline-dark\" (click)=\"activeModal.close('Close click')\">Close</button>\n</div>\n"
+module.exports = "<div class=\"modal-header\">\n  <h4 class=\"modal-title\">{{menu.name}}</h4>\n  <button type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"activeModal.dismiss('Cross click')\">\n    <span aria-hidden=\"true\">&times;</span>\n  </button>\n</div>\n<div class=\"modal-body m-0\">\n\n  <div class=\"container my-2\">\n    <ngb-carousel *ngFor=\"let image of menu.images\">\n      <ng-template ngbSlide>\n        <img [src]=\"image.url\" alt=\"image.name\">\n      </ng-template>\n    </ngb-carousel>\n  </div>\n\n  <div class=\"container my-2\">\n    <div class=\"card text-left p-2 mb-3\">\n      <div class=\"lead\">\n        <em>{{menu.description}} </em>\n      </div>\n\n      <div>\n        <span class=\"h5\">Ingredients:</span>\n        <span *ngFor=\"let ing of menu.ingredients\">\n          <em>{{ing}},</em>\n        </span>\n\n      </div>\n      <div class=\"text-left\">\n        <span class=\"h5\"> Prices: </span>\n        <div *ngFor=\"let price of menu.prices\" class=\"ml-4\">\n          <span>{{price.type}}</span> ......\n          <span>${{price.price}}</span>\n        </div>\n      </div>\n    </div>\n\n    <hr>\n\n    <div class=\"m-0 p-0\">\n      <section class=\" border m-0 p-2\">\n        <header class=\"h1\">Nutrition Facts\n        </header>\n        <table class=\"performance-facts__table small\">\n          <tbody>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Calories</b>\n                {{menu.nutrition.calories.calories}}\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                Calories from Fat {{menu.nutrition.calories.caloriesFromFat}}\n              </td>\n            </tr>\n            <tr class=\"thick-row\">\n              <td colspan=\"3\" class=\"small\">\n                <b>% Daily Value*</b>\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Total Fat</b>\n                {{menu.nutrition.fat.fat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.fat.fat/dailyValues.fat).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Saturated Fat {{menu.nutrition.fat.satFat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.fat.satFat/dailyValues.satFat).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Unsaturated Fat {{menu.nutrition.fat.unsatFat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Trans Fat {{menu.nutrition.fat.transFat}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Cholesterol</b>\n                {{menu.nutrition.cholestrol}}mg\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.cholestrol/dailyValues.cholestrol).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Sodium</b>\n                {{menu.nutrition.sodium}}mg\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.sodium/dailyValues.sodium).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Total Carbohydrate</b>\n                {{menu.nutrition.carbs.carbs}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.carbs.carbs/dailyValues.carbs).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Dietary Fiber {{menu.nutrition.carbs.fiber}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                <b>{{(menu.nutrition.carbs.fiber/dailyValues.fiber).toPrecision(2)*100}}%</b>\n              </td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\">\n              </td>\n              <th class=\"border-top font-weight-normal text-nowrap\">\n                Sugars {{menu.nutrition.carbs.sugar}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n            <tr class=\"thick-end\">\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                <b>Protein</b>\n                {{menu.nutrition.protein}}g\n              </th>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n              </td>\n            </tr>\n          </tbody>\n        </table>\n\n        <table class=\"performance-facts__table--grid small\">\n          <tbody>\n            <tr>\n              <td colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                Vitamin A {{menu.nutrition.vitamin.vita}}%\n              </td>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                Vitamin C {{menu.nutrition.vitamin.vitc}}%\n              </td>\n            </tr>\n            <tr class=\"border-bottom\">\n              <td colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">\n                Calcium {{menu.nutrition.calcium}}%\n              </td>\n              <td class=\"border-top font-weight-normal text-nowrap\">\n                Iron {{menu.nutrition.iron}}%\n              </td>\n            </tr>\n          </tbody>\n        </table>\n\n        <p class=\"small\">* Percent Daily Values are based on a 2,000 calorie diet. Your daily values may be higher or lower depending on your\n          calorie needs:</p>\n\n        <table class=\"performance-facts__table--small small border-bottom\">\n          <thead>\n            <tr>\n              <td colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\"></td>\n              <th class=\"border-top font-weight-normal text-nowrap\">Calories:</th>\n              <th class=\"border-top font-weight-normal text-nowrap\">2,000</th>\n              <th class=\"border-top font-weight-normal text-nowrap\">2,500</th>\n            </tr>\n          </thead>\n          <tbody>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Total Fat</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">65g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">80g</td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\"></td>\n              <th class=\"border-top font-weight-normal text-nowrap\">Saturated Fat</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">20g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">25g</td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Cholesterol</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">300mg</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">300 mg</td>\n            </tr>\n            <tr>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Sodium</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">Less than</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">2,400mg</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">2,400mg</td>\n            </tr>\n            <tr>\n              <th colspan=\"3\" class=\"border-top font-weight-normal text-nowrap\">Total Carbohydrate</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">300g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">375g</td>\n            </tr>\n            <tr>\n              <td class=\"blank-cell\"></td>\n              <th colspan=\"2\" class=\"border-top font-weight-normal text-nowrap\">Dietary Fiber</th>\n              <td class=\"border-top font-weight-normal text-nowrap\">25g</td>\n              <td class=\"border-top font-weight-normal text-nowrap\">30g</td>\n            </tr>\n          </tbody>\n        </table>\n\n        <p class=\"small\">\n          Calories per gram:\n        </p>\n        <p class=\"small text-center\">\n          Fat 9 &bull; Carbohydrate 4 &bull; Protein 4\n        </p>\n\n      </section>\n\n\n    </div>\n  </div>\n\n  <ngb-accordion #acc=\"ngbAccordion\" activeIds=\"ngb-panel-0\">\n    <ngb-panel title=\"Reviews\">\n      <ng-template ngbPanelContent>\n        <div *ngFor=\"let review of menu.reviews \" class=\"card p-2 mb-2 container\">\n          <div>\n            <span class=\"h6\">Rating: </span>\n            <ngb-rating [(rate)]=\"review.rating\" [readonly]=\"true\"></ngb-rating>\n\n          </div>\n          <div>\n            <span class=\"h6\">Review: </span>\n            <p>\n              {{review.review}}\n            </p>\n          </div>\n        </div>\n      </ng-template>\n    </ngb-panel>\n  </ngb-accordion>\n</div>\n<div class=\"modal-footer\">\n  <button type=\"button\" class=\"btn btn-outline-dark\" (click)=\"activeModal.close('Close click')\">Close</button>\n</div>\n"
 
 /***/ }),
 
@@ -775,7 +816,7 @@ exports.ViewDetailsComponent = ViewDetailsComponent;
 /***/ "../../../../../src/app/app-customer/orders/order-complete/order-complete.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"modal-header\">\n  <h4 class=\"modal-title\">Thank You!</h4>\n  <button type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"activeModal.dismiss('Cross click')\">\n    <span aria-hidden=\"true\">&times;</span>\n  </button>\n</div>\n<div class=\"modal-body m-0\">\n  <div class=\"card container mb-3 p-2\">\n    <ngb-alert *ngIf=\"alertEmailed\" [type]=\"success\" (close)=\"closeAlert(alert)\">Successfully emailed receipt!</ngb-alert>\n    <label for=\"receipt-email\">Email your Receipt: </label>\n    <div class=\"input-group mb-3\">\n      <input type=\"email\" class=\"form-control col-sm-4 mr-1\" name=\"email\" [(ngModel)]=\"email\">\n      <button type=\"button\" class=\"btn btn-primary pull-right\" (click)=\"emailReceipt(email)\">Send</button>\n    </div>\n  </div>\n  <div class=\"card p-2\">\n    <div class=\"h3\"> Please rate the food you ordered: </div>\n    <ngb-accordion #acc=\"ngbAccordion\" activeIds=\"ngb-panel-0\">\n      <ngb-panel *ngFor=\"let k of activeOrders\" title=\"{{k.menu.name}}\">\n        <ng-template ngbPanelContent>\n          <div class=\"input-group mb-3\">\n            <div class=\"mb-2\">\n              <span class=\"h6\">Rating: </span>\n              <ngb-rating name=\"rating\" [(ngModel)]=\"k.menu.rating\"></ngb-rating>\n            </div>\n            <div>\n              <span class=\"h6\">Review:</span>\n              <textarea class=\"form-control mb-1\" name=\"review\" [(ngModel)]=\"k.menu.review\"></textarea>\n            </div>\n            <button type=\"submit\" class=\"btn btn-primary pull-right\" (click)=\"addReview(k.menu['_id']['$oid'], k.menu.rating, k.menu.review)\">Add Review</button>\n          </div>\n        </ng-template>\n      </ngb-panel>\n    </ngb-accordion>\n  </div>\n\n</div>\n<div class=\"modal-footer\">\n  <button type=\"button\" class=\"btn btn-outline-dark\" (click)=\"activeModal.close('Close click')\">Close</button>\n</div>\n"
+module.exports = "<div class=\"modal-header\">\n  <h4 class=\"modal-title\">Thank You!</h4>\n  <button type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"activeModal.dismiss('Cross click')\">\n    <span aria-hidden=\"true\">&times;</span>\n  </button>\n</div>\n<div class=\"modal-body m-0\">\n  <div class=\"card container mb-3 p-2\">\n    <ngb-alert *ngIf=\"alertEmailed\" [type]=\"success\" (close)=\"alertEmailed=False\">Successfully emailed receipt!</ngb-alert>\n    <label for=\"receipt-email\">Email your Receipt: </label>\n    <div class=\"input-group mb-3\">\n      <input type=\"email\" class=\"form-control col-sm-4 mr-1\" name=\"email\" [(ngModel)]=\"email\">\n      <button type=\"button\" class=\"btn btn-primary pull-right\" (click)=\"emailReceipt(email)\">Send</button>\n    </div>\n  </div>\n  <div class=\"card p-2\">\n    <div class=\"h3\"> Please rate the food you ordered: </div>\n    <ngb-accordion #acc=\"ngbAccordion\" activeIds=\"ngb-panel-0\">\n      <ngb-panel *ngFor=\"let k of activeOrders\" title=\"{{k.menu.name}}\">\n        <ng-template ngbPanelContent>\n          <div class=\"input-group mb-3\">\n            <div class=\"mb-2\">\n              <span class=\"h6\">Rating: </span>\n              <ngb-rating name=\"rating\" [(ngModel)]=\"k.menu.rating\"></ngb-rating>\n            </div>\n            <div>\n              <span class=\"h6\">Review:</span>\n              <textarea class=\"form-control mb-1\" name=\"review\" [(ngModel)]=\"k.menu.review\"></textarea>\n            </div>\n            <button type=\"submit\" class=\"btn btn-primary pull-right\" (click)=\"addReview(k.menu['_id']['$oid'], k.menu.rating, k.menu.review)\">Add Review</button>\n          </div>\n        </ng-template>\n      </ngb-panel>\n    </ngb-accordion>\n  </div>\n\n</div>\n<div class=\"modal-footer\">\n  <button type=\"button\" class=\"btn btn-outline-dark\" (click)=\"activeModal.close('Close click')\">Close</button>\n</div>\n"
 
 /***/ }),
 
@@ -1182,7 +1223,7 @@ exports.AddOrderComponent = AddOrderComponent;
 /***/ "../../../../../src/app/app-waitress/add-order/close-order/close-order.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"modal-header\">\n  <h4 class=\"modal-title\">Thank You!</h4>\n  <button type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"activeModal.dismiss('Cross click')\">\n    <span aria-hidden=\"true\">&times;</span>\n  </button>\n</div>\n<div class=\"modal-body m-0\">\n  <div id=\"checkOut\" *ngIf=\"showCheckOut\" class=\"card my-4 p-2\">\n    <h5 class=\"card-header\">Check Out</h5>\n    <div class=\"card-body\">\n      <div class=\"col order-md-1\">\n        <form class=\"needs-validation\" novalidate=\"\">\n\n          <h4 class=\"mb-3\">Payment</h4>\n\n          <div class=\"d-block my-3\">\n            <div class=\"custom-control custom-radio\">\n              <input id=\"credit\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" checked=\"\" required=\"\">\n              <label class=\"custom-control-label\" for=\"credit\">Credit card</label>\n            </div>\n            <div class=\"custom-control custom-radio\">\n              <input id=\"debit\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" required=\"\">\n              <label class=\"custom-control-label\" for=\"debit\">Debit card</label>\n            </div>\n            <div class=\"custom-control custom-radio\">\n              <input id=\"paypal\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" required=\"\">\n              <label class=\"custom-control-label\" for=\"paypal\">Paypal</label>\n            </div>\n          </div>\n          <div class=\"row\">\n            <div class=\"col-md-6 mb-3\">\n              <label for=\"cc-name\">Name on card</label>\n              <input type=\"text\" class=\"form-control\" id=\"cc-name\" placeholder=\"\" required=\"\">\n              <small class=\"text-muted\">Full name as displayed on card</small>\n              <div class=\"invalid-feedback\">\n                Name on card is required\n              </div>\n            </div>\n            <div class=\"col-md-6 mb-3\">\n              <label for=\"cc-number\">Credit card number</label>\n              <input type=\"text\" class=\"form-control\" id=\"cc-number\" placeholder=\"\" required=\"\">\n              <div class=\"invalid-feedback\">\n                Credit card number is required\n              </div>\n            </div>\n          </div>\n          <div class=\"row\">\n            <div class=\"col-md-3 mb-3\">\n              <label for=\"cc-expiration\">Expiration</label>\n              <input type=\"text\" class=\"form-control\" id=\"cc-expiration\" placeholder=\"\" required=\"\">\n              <div class=\"invalid-feedback\">\n                Expiration date required\n              </div>\n            </div>\n            <div class=\"col-md-3 mb-3\">\n              <label for=\"cc-expiration\">CVV</label>\n              <input type=\"text\" class=\"form-control\" id=\"cc-cvv\" placeholder=\"\" required=\"\">\n              <div class=\"invalid-feedback\">\n                Security code required\n              </div>\n            </div>\n          </div>\n          <hr class=\"mb-4\">\n          <button class=\"btn btn-primary btn-lg btn-block\" type=\"submit\" (click)=\"completePayment()\">Complete Payment</button>\n        </form>\n      </div>\n    </div>\n  </div>\n\n  <div *ngIf=\"!showCheckOut\" class=\"card container mb-3 p-2\">\n    <div *ngIf=\"!tipAdded\" class=\"input-group mb-3\">\n      <label for=\"tip\">Include a tip: </label>\n      <input type=\"number\" class=\"form-control col-sm-6 m-1\" name=\"tip\" id=\"tip\" [(ngModel)]=\"tip\">\n      <button type=\"button\" class=\"btn btn-primary pull-right\" (click)=\"addTip(tip)\">Add tip</button>\n    </div>\n    <ngb-alert *ngIf=\"alertEmailed\" [type]=\"success\" (close)=\"closeAlert(alert)\">Successfully emailed receipt!</ngb-alert>\n    <label for=\"receipt-email\">Email your Receipt: </label>\n    <div class=\"input-group mb-3\">\n      <input type=\"email\" class=\"form-control col-sm-6 mr-1\" name=\"email\" [(ngModel)]=\"email\">\n      <button type=\"button\" class=\"btn btn-primary pull-right\" (click)=\"emailReceipt(email)\">Send</button>\n    </div>\n  </div>\n</div>\n<div class=\"modal-footer\">\n  <button type=\"button\" class=\"btn btn-outline-dark\" (click)=\"activeModal.close('Close click')\">Close</button>\n</div>\n"
+module.exports = "<div class=\"modal-header\">\n  <h4 class=\"modal-title\">Thank You!</h4>\n  <button type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"activeModal.dismiss('Cross click')\">\n    <span aria-hidden=\"true\">&times;</span>\n  </button>\n</div>\n<div class=\"modal-body m-0\">\n  <div id=\"checkOut\" *ngIf=\"showCheckOut\" class=\"card my-4 p-2\">\n    <h5 class=\"card-header\">Check Out</h5>\n    <div class=\"card-body\">\n      <div class=\"col order-md-1\">\n        <form class=\"needs-validation\" novalidate=\"\">\n\n          <h4 class=\"mb-3\">Payment</h4>\n\n          <div class=\"d-block my-3\">\n            <div class=\"custom-control custom-radio\">\n              <input id=\"credit\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" checked=\"\" required=\"\">\n              <label class=\"custom-control-label\" for=\"credit\">Credit card</label>\n            </div>\n            <div class=\"custom-control custom-radio\">\n              <input id=\"debit\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" required=\"\">\n              <label class=\"custom-control-label\" for=\"debit\">Debit card</label>\n            </div>\n            <div class=\"custom-control custom-radio\">\n              <input id=\"paypal\" name=\"paymentMethod\" type=\"radio\" class=\"custom-control-input\" required=\"\">\n              <label class=\"custom-control-label\" for=\"paypal\">Paypal</label>\n            </div>\n          </div>\n          <div class=\"row\">\n            <div class=\"col-md-6 mb-3\">\n              <label for=\"cc-name\">Name on card</label>\n              <input type=\"text\" class=\"form-control\" id=\"cc-name\" placeholder=\"\" required=\"\">\n              <small class=\"text-muted\">Full name as displayed on card</small>\n              <div class=\"invalid-feedback\">\n                Name on card is required\n              </div>\n            </div>\n            <div class=\"col-md-6 mb-3\">\n              <label for=\"cc-number\">Credit card number</label>\n              <input type=\"text\" class=\"form-control\" id=\"cc-number\" placeholder=\"\" required=\"\">\n              <div class=\"invalid-feedback\">\n                Credit card number is required\n              </div>\n            </div>\n          </div>\n          <div class=\"row\">\n            <div class=\"col-md-3 mb-3\">\n              <label for=\"cc-expiration\">Expiration</label>\n              <input type=\"text\" class=\"form-control\" id=\"cc-expiration\" placeholder=\"\" required=\"\">\n              <div class=\"invalid-feedback\">\n                Expiration date required\n              </div>\n            </div>\n            <div class=\"col-md-3 mb-3\">\n              <label for=\"cc-expiration\">CVV</label>\n              <input type=\"text\" class=\"form-control\" id=\"cc-cvv\" placeholder=\"\" required=\"\">\n              <div class=\"invalid-feedback\">\n                Security code required\n              </div>\n            </div>\n          </div>\n          <hr class=\"mb-4\">\n          <button class=\"btn btn-primary btn-lg btn-block\" type=\"submit\" (click)=\"completePayment()\">Complete Payment</button>\n        </form>\n      </div>\n    </div>\n  </div>\n\n  <div *ngIf=\"!showCheckOut\" class=\"card container mb-3 p-2\">\n    <div *ngIf=\"!tipAdded\" class=\"input-group mb-3\">\n      <label for=\"tip\">Include a tip: </label>\n      <input type=\"number\" class=\"form-control col-sm-6 m-1\" name=\"tip\" id=\"tip\" [(ngModel)]=\"tip\">\n      <button type=\"button\" class=\"btn btn-primary pull-right\" (click)=\"addTip(tip)\">Add tip</button>\n    </div>\n    <ngb-alert *ngIf=\"alertEmailed\" [type]=\"success\" (close)=\"alertEmailed=False\">Successfully emailed receipt!</ngb-alert>\n    <label for=\"receipt-email\">Email your Receipt: </label>\n    <div class=\"input-group mb-3\">\n      <input type=\"email\" class=\"form-control col-sm-6 mr-1\" name=\"email\" [(ngModel)]=\"email\">\n      <button type=\"button\" class=\"btn btn-primary pull-right\" (click)=\"emailReceipt(email)\">Send</button>\n    </div>\n  </div>\n</div>\n<div class=\"modal-footer\">\n  <button type=\"button\" class=\"btn btn-outline-dark\" (click)=\"activeModal.close('Close click')\">Close</button>\n</div>\n"
 
 /***/ }),
 
@@ -1380,6 +1421,8 @@ var AppWaitressComponent = /** @class */ (function () {
     AppWaitressComponent.prototype.popAlert = function (time) {
     };
     AppWaitressComponent.prototype.getEarliestReservationIndex = function () {
+        //get all the reservation within the next 30 mins
+        //reservations alerts come every 30 mins
         var earliestReservation = moment(this.reservations[0]['date']);
         var earlyIndex = 0;
         for (var i = 0; i < this.reservations.length; i++) {
@@ -1653,6 +1696,7 @@ var socket_service_1 = __webpack_require__("../../../../../src/app/services/sock
 var waitress_service_1 = __webpack_require__("../../../../../src/app/services/waitress.service.ts");
 var main_pipe_module_1 = __webpack_require__("../../../../../src/app/pipes/main-pipe.module.ts");
 var app_waitress_module_1 = __webpack_require__("../../../../../src/app/app-waitress/app-waitress.module.ts");
+var fileUpload_service_1 = __webpack_require__("../../../../../src/app/services/fileUpload.service.ts");
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -1672,7 +1716,7 @@ var AppModule = /** @class */ (function () {
                 ng_bootstrap_1.NgbModule.forRoot(),
                 main_pipe_module_1.MainPipeModule
             ],
-            providers: [app_service_1.AppService, menu_service_1.MenuService, employee_service_1.EmployeeService, customer_service_1.CustomerService, socket_service_1.SocketService, waitress_service_1.WaitressService],
+            providers: [app_service_1.AppService, menu_service_1.MenuService, employee_service_1.EmployeeService, customer_service_1.CustomerService, socket_service_1.SocketService, waitress_service_1.WaitressService, fileUpload_service_1.FileUploadService],
             entryComponents: [],
             bootstrap: [app_component_1.AppComponent]
         })
@@ -1766,7 +1810,7 @@ var Menu = /** @class */ (function () {
         this.prices = [];
         this.ingredients = [];
         this.nutrition = new nutrition_1.Nutrition();
-        this.reviews = new Review();
+        this.reviews = [];
         this.images = [];
     }
     return Menu;
@@ -2145,6 +2189,67 @@ exports.EmployeeService = EmployeeService;
 
 /***/ }),
 
+/***/ "../../../../../src/app/services/fileUpload.service.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var firebase = __webpack_require__("../../../../firebase/app/index.js");
+__webpack_require__("../../../../firebase/storage/index.js");
+var core_1 = __webpack_require__("../../../core/esm5/core.js");
+var FileUploadService = /** @class */ (function () {
+    function FileUploadService() {
+        this.config = {
+            apiKey: "AIzaSyA4Wsc8xn7euyS1Fn45fbdFd82ZRf37zlk",
+            authDomain: "seniorproject-45c7b.firebaseapp.com",
+            databaseURL: "https://seniorproject-45c7b.firebaseio.com",
+            projectId: "seniorproject-45c7b",
+            storageBucket: "seniorproject-45c7b.appspot.com",
+            messagingSenderId: "940441894733"
+        };
+        this.basePath = '/uploads';
+        firebase.initializeApp(this.config);
+    }
+    FileUploadService.prototype.pushUpload = function (upload) {
+        var storageRef = firebase.storage().ref();
+        var uploadTask = storageRef.child("" + upload.name).put(upload);
+        uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, function (snapshot) {
+            // upload in progress
+            upload.progress = (snapshot['bytesTransferred'] / snapshot['totalBytes']) * 100;
+        }, function (error) {
+            // upload failed
+            console.log(error);
+            return null;
+        }, function () {
+            // upload success
+            console.log(uploadTask.snapshot.downloadURL);
+            return {
+                "url": uploadTask.snapshot.downloadURL,
+                "name": upload.name
+            };
+        });
+    };
+    FileUploadService = __decorate([
+        core_1.Injectable(),
+        __metadata("design:paramtypes", [])
+    ], FileUploadService);
+    return FileUploadService;
+}());
+exports.FileUploadService = FileUploadService;
+
+
+/***/ }),
+
 /***/ "../../../../../src/app/services/menu.service.ts":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2184,7 +2289,7 @@ var MenuService = /** @class */ (function () {
             .map(function (res) { return res.json(); });
     };
     MenuService.prototype.deleteMenu = function (id) {
-        return this.http.delete(this.apiUrl + "deleteMenu/" + id, this.options)
+        return this.http.delete(this.apiUrl + "deleteMenu?menuId=" + id, this.options)
             .map(function (res) { return res.json(); });
     };
     MenuService = __decorate([
@@ -2618,7 +2723,7 @@ module.exports = __webpack_require__("../../../../../src/main.ts");
 
 /***/ }),
 
-/***/ 3:
+/***/ 1:
 /***/ (function(module, exports) {
 
 /* (ignored) */

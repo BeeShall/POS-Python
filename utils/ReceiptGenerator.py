@@ -42,7 +42,8 @@ class ReceiptGenerator(object):
 			priceDict = {}
 
 			for j in range(len(prices)):
-				priceDict[prices[i]['type']] = prices[i]['price']
+				priceDict[prices[j]['type']] = prices[j]['price']
+			print(priceDict)
 
 			menuId = str(menu[i]['_id'])
 			menuMap[menuId] = {
@@ -51,6 +52,8 @@ class ReceiptGenerator(object):
 			}
 
 		total = 0
+
+		print(menuMap)
 
 		order = orders["orders"]
 		for i in range(len(order)):

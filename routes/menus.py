@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, session, Response, request, redirect
 import json
 from bson import json_util
 from models.database import Mongo_Client
@@ -12,7 +12,7 @@ menus = Blueprint('menus', __name__, url_prefix='/api')
 def addMenu():
 	#only authorized personnel can do this
 	menu = request.get_json(silent=True)
-	menuID - Mongo_Client.AddMenu(menu)
+	menuID = Mongo_Client.AddMenu(menu)
 	if menuID is not None:
 		return json.dumps({
 			"success":True,

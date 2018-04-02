@@ -84,7 +84,7 @@ class Mongo_Client(object):
 	@classmethod
 	def UpdateMenu(cls, menu):
 		try:
-			result = cls.db["menu"].replace_one({"_id": ObjectId(menu["menuId"])}, {
+			result = cls.db["menu"].update_one({"_id": ObjectId(menu["menuId"])}, {
 				"$set": menu}, upsert=True)
 			if result.modified_count > 0:
 				return True
@@ -95,10 +95,10 @@ class Mongo_Client(object):
 			return False
 
 	@classmethod
-	def DeleteMenu(cls, menu):
+	def DeleteMenu(cls, menuId):
 		try:
 			result = cls.db["menu"].delete_one(
-				{"_id": ObjectId(menu["menuId"])})
+				{"_id": ObjectId(menuId)})
 			if result.deleted_count > 0:
 				return True
 			else:
