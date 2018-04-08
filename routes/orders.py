@@ -10,6 +10,7 @@ from utils.ReceiptGenerator import ReceiptGenerator
 orders = Blueprint('orders', __name__, url_prefix='/api')
 
 
+
 @orders.route('/startOrder', methods=["GET"])
 @cross_origin()
 def startOrder():
@@ -19,6 +20,7 @@ def startOrder():
 
 		#checking if already on table
 		orderId = Mongo_Client.GetOrderNoForTable(tableNo) 
+		print(orderId)
 		if orderId is not None:
 			session['orderNo'] = orderId
 			print("Table already occupied! orderNo:", orderId)

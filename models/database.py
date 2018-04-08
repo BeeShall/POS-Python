@@ -207,7 +207,10 @@ class Mongo_Client(object):
 	def GetOrderNoForTable(cls, tableNo):
 		try:
 			cursor = cls.db["tables"].find({"tableNo":tableNo})
-			return cursor[0]["orderId"]
+			if len(cursor) > 0:
+				return cursor[0]["orderId"]
+			else:
+				return None
 		except Exception as e:
 			print("Exception while getting orderNo for table", e.message)
 			return None

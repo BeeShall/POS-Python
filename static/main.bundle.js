@@ -538,11 +538,13 @@ var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap
 var menu_1 = __webpack_require__("../../../../../src/app/dataModels/menu.ts");
 var menu_service_1 = __webpack_require__("../../../../../src/app/services/menu.service.ts");
 var customer_service_1 = __webpack_require__("../../../../../src/app/services/customer.service.ts");
+var socket_service_1 = __webpack_require__("../../../../../src/app/services/socket.service.ts");
 var AppCustomerComponent = /** @class */ (function () {
-    function AppCustomerComponent(config, menuService, customerService) {
+    function AppCustomerComponent(config, menuService, customerService, socketService) {
         var _this = this;
         this.menuService = menuService;
         this.customerService = customerService;
+        this.socketService = socketService;
         config.justify = 'center';
         config.type = 'pills';
         this.pendingOrders = [];
@@ -555,6 +557,9 @@ var AppCustomerComponent = /** @class */ (function () {
             else {
                 console.log("Error fetching menus!");
             }
+        });
+        this.socketService.join({
+            "staff": false,
         });
     }
     AppCustomerComponent.prototype.sortMenus = function (menus) {
@@ -598,7 +603,8 @@ var AppCustomerComponent = /** @class */ (function () {
         }),
         __metadata("design:paramtypes", [ng_bootstrap_1.NgbTabsetConfig,
             menu_service_1.MenuService,
-            customer_service_1.CustomerService])
+            customer_service_1.CustomerService,
+            socket_service_1.SocketService])
     ], AppCustomerComponent);
     return AppCustomerComponent;
 }());
@@ -1170,6 +1176,7 @@ var AddOrderComponent = /** @class */ (function () {
         var _this = this;
         console.log(this.data.menus[menuIndex]);
         var order = {
+            orderNo: this.data["ordersByTable"]["tableIndex"],
             orderType: "WAITRESS",
             menuId: this.data.menus[menuIndex]['_id']['$oid'],
             date: moment().toISOString(),
@@ -1390,13 +1397,28 @@ var AppWaitressComponent = /** @class */ (function () {
             .subscribe(function (data) {
             if (data["success"]) {
                 _this.reservations = data["reservations"];
-                _this.setAlertForReminder();
+                console.log(_this.reservations);
+                if (_this.reservations.length > 0) {
+                    _this.setAlertForReminder();
+                }
             }
             else {
                 console.log("Database error in the server");
             }
         }, function (err) {
             console.log("Error while fetching reservations!");
+        });
+        this.socketService.join({
+            "staff": true
+        });
+        this.socketService.getNewOrder().subscribe(function (data) {
+            data = JSON.parse(data);
+            _this.ordersByTable.push({
+                orderNo: data['orderNo'],
+                tableNo: data['tableNo'],
+                orderId: data['_id']['$oid'],
+                orders: []
+            });
         });
     };
     AppWaitressComponent.prototype.setAlertForReminder = function () {
@@ -1697,6 +1719,8 @@ var waitress_service_1 = __webpack_require__("../../../../../src/app/services/wa
 var main_pipe_module_1 = __webpack_require__("../../../../../src/app/pipes/main-pipe.module.ts");
 var app_waitress_module_1 = __webpack_require__("../../../../../src/app/app-waitress/app-waitress.module.ts");
 var fileUpload_service_1 = __webpack_require__("../../../../../src/app/services/fileUpload.service.ts");
+var ngx_socket_io_1 = __webpack_require__("../../../../ngx-socket-io/index.js");
+var config = { url: 'http://localhost:5000', options: {} };
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -1714,7 +1738,8 @@ var AppModule = /** @class */ (function () {
                 app_customer_modules_1.AppCustomerModule,
                 app_waitress_module_1.AppWaitressModule,
                 ng_bootstrap_1.NgbModule.forRoot(),
-                main_pipe_module_1.MainPipeModule
+                main_pipe_module_1.MainPipeModule,
+                ngx_socket_io_1.SocketIoModule.forRoot(config)
             ],
             providers: [app_service_1.AppService, menu_service_1.MenuService, employee_service_1.EmployeeService, customer_service_1.CustomerService, socket_service_1.SocketService, waitress_service_1.WaitressService, fileUpload_service_1.FileUploadService],
             entryComponents: [],
@@ -2320,18 +2345,54 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var http_1 = __webpack_require__("../../../http/esm5/http.js");
-var signalr_client_1 = __webpack_require__("../../../../@aspnet/signalr-client/dist/src/index.js");
+var Observable_1 = __webpack_require__("../../../../rxjs/_esm5/Observable.js");
 __webpack_require__("../../../../rxjs/_esm5/add/operator/map.js");
 __webpack_require__("../../../../rxjs/_esm5/add/operator/catch.js");
+var io = __webpack_require__("../../../../socket.io-client/lib/index.js");
 var SocketService = /** @class */ (function () {
     function SocketService(http) {
         this.http = http;
-        this.hubConnection = new signalr_client_1.HubConnection('http://localhost:5000/test');
-        this.hubConnection
-            .start()
-            .then(function () { return console.log('Connection started!'); })
-            .catch(function (err) { return console.log('Error while establishing connection :('); });
+        this.socket = io("http://localhost:5000/");
     }
+    SocketService.prototype.join = function (data) {
+        this.socket.emit('join', data);
+    };
+    SocketService.prototype.addOrder = function (data) {
+        this.socket.emit('addOrder', data);
+    };
+    SocketService.prototype.closeOrder = function (data) {
+        this.socket.emit('closeOrder', data);
+    };
+    SocketService.prototype.cancelOrder = function (data) {
+        this.socket.emit('cancelOrder', data);
+    };
+    SocketService.prototype.completeOrder = function (data) {
+        this.socket.emit('completeOrder', data);
+    };
+    SocketService.prototype.getUpdatedOrder = function () {
+        var _this = this;
+        return new Observable_1.Observable(function (observer) {
+            _this.socket.on('join', function (data) {
+                observer.next(data);
+            });
+            return function () {
+                _this.socket.disconnect();
+            };
+        });
+    };
+    //this is only listened by the waitress for a new order on a new table
+    SocketService.prototype.getNewOrder = function () {
+        var _this = this;
+        var observable = new Observable_1.Observable(function (observer) {
+            _this.socket.on('newCustomer', function (data) {
+                observer.next(data);
+            });
+            return function () {
+                _this.socket.disconnect();
+            };
+        });
+        return observable;
+    };
     SocketService = __decorate([
         core_1.Injectable(),
         __metadata("design:paramtypes", [http_1.Http])

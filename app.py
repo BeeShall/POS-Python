@@ -1,4 +1,5 @@
 from flask import Flask, session, send_from_directory
+from flask_socketio import SocketIO
 from models.database import Mongo_Client
 from datetime import timedelta
 import os
@@ -14,7 +15,9 @@ static_folder = os.path.join(os.pardir, 'static')
 
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = "POS.session"
+socketio = SocketIO(app)
 
+import routes.socketsEvents
 
 app.register_blueprint(auth)
 app.register_blueprint(employees)
@@ -47,4 +50,5 @@ def catch_all(path):
 
 
 if __name__ == "__main__":
-	app.run(debug=True)
+	app.debug = True
+	socketio.run(app)
