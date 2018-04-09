@@ -31,47 +31,43 @@ def join(data):
 		print(orderNo)
 		if orderNo not in loggedInClients:
 			loggedInClients[orderNo] = request.sid
-
-		#if a client joined,
-		# get specific order,
-		order = json_util.dumps(Mongo_Client.GetOrdersWithDetails(orderNo))
-		# all the servers should be notified about the new order
-		print(loggedInServers)
-		for server in loggedInServers:
-				if server != request.sid:
-					print("Sent to", server)
-					emit('newCustomer',order, room=server)
+			#if a client joined,
+			# get specific order,
+			order = json_util.dumps(Mongo_Client.GetOrdersWithDetails(orderNo))
+			# all the servers should be notified about the new order
+			print(loggedInServers)
+			for server in loggedInServers:
+				print("Sent to", server)
+				emit('newCustomer',order, room=server)
 
 @socketio.on('addOrder')
-def addOrders(order):
+def addOrders(data):
 	orderNo = None
 	clientOrder = False
+	print(data)
 	#client made an order
 	if 'orderNo' in session:
 		clientOrder = True	
 		orderNo = session['orderNo']
 		#waitress made an order
-	elif orderNo in order:
-		orderNo = order["orderNo"]
+	elif 'orderNo' in data:
+		orderNo = data["orderNo"]
 	else:
 		send("Unauthorized")
 		return json.dumps({
 				"error": "Unauthorized"
 			})
 	
-	order["orderNo"] = orderNo
-	if Mongo_Client.AddOrders(values, order):
-		if clientOrder:
-			#emit to every single server
-			for server in loggedInServers:
-				emit("Order Added",order, json=True, room=server)
-		else:
-			#emit to the specific client
-			emit("Order Added", order, json=True, room = loggedInClients[orderNo])
-			#emit every other server than the one
-			for server in loggedInServers:
-				if server != request.sid:
-					emit("Order Added", order, json=True, room=server)
+	print(loggedInClients)
+	print(loggedInServers)
+	if Mongo_Client.AddOrders(data["orders"], orderNo):
+
+		#emit to the specific client
+		emit("Order Added", {"success":True, "orders": data["orders"]}, json=True, room = loggedInClients[orderNo])
+		#emit to all the servers
+		for server in loggedInServers:
+			print("Sent to", server)
+			emit("Order Added", {"success":True, "data": {"orderNo":orderNo, "orders": data["orders"]}}, json=True, room=server)
 
 	else:
 		send("Error")
@@ -89,5 +85,7 @@ def cancelOrder():
 
 @socketio.on('completeOrder')
 @cross_origin()
-def completeOrder():
-	pass
+def completeOrder(orderNo):
+	for server in loggedInServers:
+		print("Sent to", server)
+		emit("Completed Order", {"orderNo":orderNo}, json=True, room=server)

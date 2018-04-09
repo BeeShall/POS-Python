@@ -113,6 +113,8 @@ def closeOrder():
 	orderNo = None
 	if 'orderNo' in session:
 		orderNo = session["orderNo"]
+	else:
+		orderNo = request.args.get('orderNo')
 	'''
 	elif 'role' in session:
 		orderNo = request.args.get('orderNo')
@@ -126,7 +128,7 @@ def closeOrder():
 			})
 	'''
 
-	# orderNo = request.args.get('orderNo')
+	# 
 	print(orderNo)
 	if Mongo_Client.CloseOrder(orderNo):
 		return json.dumps({
@@ -158,8 +160,12 @@ def cancelOrder():
 @cross_origin()
 def completeOrder():
 	orderNo = None
+	values = request.get_json(silent=True)
 	if 'orderNo' in session:
 		orderNo = session["orderNo"]
+	else:
+		orderNo = values["orderNo"]
+	
 	'''
 	elif 'role' in session:
 		orderNo = request.args.get('orderNo')
@@ -174,9 +180,12 @@ def completeOrder():
 	'''
 
 	# orderNo = request.args.get('orderNo')
-	values = request.get_json(silent=True)
+	
+	print(values)
+	print(orderNo)
 
 	if Mongo_Client.UpdateOrder(orderNo, values):
+		print("order updated")
 		session.pop("orderNo", None)
 		Mongo_Client.ClearTableWithOrderNo(orderNo)
 		return json.dumps({

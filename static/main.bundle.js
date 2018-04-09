@@ -937,16 +937,32 @@ var moment = __webpack_require__("../../../../moment/moment.js");
 var customer_service_1 = __webpack_require__("../../../../../src/app/services/customer.service.ts");
 var order_complete_component_1 = __webpack_require__("../../../../../src/app/app-customer/orders/order-complete/order-complete.component.ts");
 var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap/index.js");
+var socket_service_1 = __webpack_require__("../../../../../src/app/services/socket.service.ts");
 var OrdersComponent = /** @class */ (function () {
-    function OrdersComponent(customerService, modalService) {
+    function OrdersComponent(customerService, modalService, socketService) {
         this.customerService = customerService;
         this.modalService = modalService;
+        this.socketService = socketService;
         this.taxRate = 7;
         this.tip = 0.0;
         this.showCheckOut = true;
     }
-    OrdersComponent.prototype.addToActive = function () {
+    OrdersComponent.prototype.ngOnInit = function () {
         var _this = this;
+        this.socketService.getUpdatedOrder("Order Added")
+            .subscribe(function (data) {
+            console.log(data);
+            if (data["success"]) {
+                (_a = _this.activeOrders).push.apply(_a, _this.pendingOrders);
+                _this.pendingOrders.splice(0, _this.pendingOrders.length);
+            }
+            else {
+                console.log(data);
+            }
+            var _a;
+        });
+    };
+    OrdersComponent.prototype.addToActive = function () {
         //post all the pendingOrders
         var orders = [];
         for (var i = 0; i < this.pendingOrders.length; i++) {
@@ -962,18 +978,21 @@ var OrdersComponent = /** @class */ (function () {
             orders.push(order);
         }
         console.log(orders);
+        this.socketService.addOrder({ "orders": orders });
+        /*
         this.customerService.addOrders(orders)
-            .subscribe(function (data) {
-            if (data["success"]) {
-                console.log("Successfully added order");
-                (_a = _this.activeOrders).push.apply(_a, _this.pendingOrders);
-                _this.pendingOrders.splice(0, _this.pendingOrders.length);
-            }
-            else {
-                console.log(data);
-            }
-            var _a;
-        });
+            .subscribe(data => {
+                if (data["success"]) {
+                    console.log("Successfully added order")
+                    this.activeOrders.push(...this.pendingOrders)
+
+                    this.pendingOrders.splice(0, this.pendingOrders.length);
+                }
+                else {
+                    console.log(data)
+                }
+            })
+            */
     };
     OrdersComponent.prototype.removeOrder = function (i) {
         console.log(this.pendingOrders[i]);
@@ -1028,13 +1047,13 @@ var OrdersComponent = /** @class */ (function () {
             .subscribe(function (data) {
             if (data["success"]) {
                 console.log(reviewMenus);
+                _this.socketService.completeOrder(data["orderId"]);
                 var modalRef = _this.modalService.open(order_complete_component_1.OrderCompleteComponent, { size: "lg" });
                 modalRef.componentInstance.activeOrders = reviewMenus;
                 modalRef.componentInstance.orderId = data["orderId"];
             }
         });
     };
-    OrdersComponent.prototype.ngOnInit = function () { };
     __decorate([
         core_1.Input(),
         __metadata("design:type", Array)
@@ -1049,7 +1068,8 @@ var OrdersComponent = /** @class */ (function () {
             template: __webpack_require__("../../../../../src/app/app-customer/orders/orders.component.html")
         }),
         __metadata("design:paramtypes", [customer_service_1.CustomerService,
-            ng_bootstrap_1.NgbModal])
+            ng_bootstrap_1.NgbModal,
+            socket_service_1.SocketService])
     ], OrdersComponent);
     return OrdersComponent;
 }());
@@ -1162,21 +1182,21 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap/index.js");
-var menu_1 = __webpack_require__("../../../../../src/app/dataModels/menu.ts");
 var customer_service_1 = __webpack_require__("../../../../../src/app/services/customer.service.ts");
 var moment = __webpack_require__("../../../../moment/moment.js");
+var socket_service_1 = __webpack_require__("../../../../../src/app/services/socket.service.ts");
 var AddOrderComponent = /** @class */ (function () {
-    function AddOrderComponent(activeModal, customerService) {
+    function AddOrderComponent(activeModal, customerService, socketService) {
         this.activeModal = activeModal;
         this.customerService = customerService;
+        this.socketService = socketService;
         this.numbers = [];
         this.numbers = Array(5).fill(0).map(function (x, i) { return i + 1; });
     }
+    AddOrderComponent.prototype.ngOnInit = function () {
+    };
     AddOrderComponent.prototype.addOrder = function (menuIndex, quantity, size) {
-        var _this = this;
-        console.log(this.data.menus[menuIndex]);
         var order = {
-            orderNo: this.data["ordersByTable"]["tableIndex"],
             orderType: "WAITRESS",
             menuId: this.data.menus[menuIndex]['_id']['$oid'],
             date: moment().toISOString(),
@@ -1184,30 +1204,38 @@ var AddOrderComponent = /** @class */ (function () {
             size: size ? size : 0,
             status: "PLACED"
         };
+        var orderNo = this.data["ordersByTable"][this.data["tableIndex"]]["orderId"];
+        this.socketService.addOrder({ "orderNo": orderNo, "orders": [order] });
+        /*
         this.customerService.addOrders([order])
-            .subscribe(function (data) {
-            if (data["success"]) {
-                console.log("Successfully added order");
-                console.log(order);
-                console.log(_this.data);
-                _this.data.orders.push({
-                    orderNo: _this.data.ordersByTable[_this.data.tableIndex].orderNo,
-                    tableNo: _this.data.ordersByTable[_this.data.tableIndex].tableNo,
-                    quantity: quantity,
-                    size: size ? menu_1.MenuType[size] : "REGULAR",
-                    server: _this.data.server,
-                    menu: _this.data.menus[menuIndex]
-                });
-                order["menu"] = _this.data.menus[menuIndex];
-                _this.data.ordersByTable[_this.data.tableIndex].orders.push(order);
-                //websocket call
-            }
-            else {
-                console.log(data);
-            }
-        });
+            .subscribe(data => {
+                if (data["success"]) {
+                    console.log("Successfully added order")
+
+                    console.log(order)
+                    console.log(this.data)
+
+                    this.data.orders.push({
+                        orderNo: this.data.ordersByTable[this.data.tableIndex].orderNo,
+                        tableNo: this.data.ordersByTable[this.data.tableIndex].tableNo,
+                        quantity: quantity,
+                        size: size ? MenuType[size] : "REGULAR",
+                        server: this.data.server,
+                        menu: this.data.menus[menuIndex]
+                    });
+
+                    order["menu"] = this.data.menus[menuIndex]
+
+                    this.data.ordersByTable[this.data.tableIndex].orders.push(order);
+
+                    //websocket call
+                }
+                else {
+                    console.log(data)
+                }
+            })
+            */
     };
-    AddOrderComponent.prototype.ngOnInit = function () { };
     __decorate([
         core_1.Input(),
         __metadata("design:type", Object)
@@ -1218,7 +1246,8 @@ var AddOrderComponent = /** @class */ (function () {
             template: __webpack_require__("../../../../../src/app/app-waitress/add-order/add-order.component.html")
         }),
         __metadata("design:paramtypes", [ng_bootstrap_1.NgbActiveModal,
-            customer_service_1.CustomerService])
+            customer_service_1.CustomerService,
+            socket_service_1.SocketService])
     ], AddOrderComponent);
     return AddOrderComponent;
 }());
@@ -1263,6 +1292,7 @@ var CloseOrderComponent = /** @class */ (function () {
     CloseOrderComponent.prototype.completePayment = function () {
         var _this = this;
         var paymentData = {
+            orderNo: this.orderId,
             tax: 0.14 * this.total,
             tip: 0
         };
@@ -1420,6 +1450,57 @@ var AppWaitressComponent = /** @class */ (function () {
                 orders: []
             });
         });
+        this.socketService.getUpdatedOrder("Completed Order")
+            .subscribe(function (data) {
+            var index = 0;
+            for (var i = 0; i < _this.ordersByTable.length; i++) {
+                if (_this.ordersByTable[i].orderId == data["orderNo"]) {
+                    index = i;
+                    break;
+                }
+            }
+            _this.ordersByTable.splice(index, 1);
+            for (var i = 0; i < _this.orders.length; i++) {
+                if (_this.orders[i].orderId == data["orderNo"]) {
+                    _this.orders.splice(i, 1);
+                    i--;
+                }
+            }
+        });
+        this.socketService.getUpdatedOrder("Order Added")
+            .subscribe(function (data) {
+            if (data["success"]) {
+                //find the orders
+                var tempOrders = data["data"]["orders"];
+                var ordersIndex = 0;
+                var index = 0;
+                //find the index for ordersByTableList
+                for (var i = 0; i < _this.ordersByTable.length; i++) {
+                    if (_this.ordersByTable[i].orderId == data["data"]["orderNo"]) {
+                        index = i;
+                        break;
+                    }
+                }
+                //find the respective menus for each order
+                for (var i = 0; i < tempOrders.length; i++) {
+                    tempOrders[i]["menu"] = _this.menus[tempOrders[i]["menuId"]];
+                    _this.orders.push({
+                        orderNo: _this.ordersByTable[index].orderNo,
+                        orderId: _this.ordersByTable[index].orderId,
+                        tableNo: _this.ordersByTable[index].tableNo,
+                        quantity: tempOrders[i].quantity,
+                        size: tempOrders[i].menu.prices[tempOrders[i].size].type,
+                        server: tempOrders[i].server,
+                        menu: tempOrders[i].menu
+                    });
+                }
+                (_a = _this.ordersByTable[index].orders).push.apply(_a, tempOrders);
+            }
+            else {
+                console.log(data);
+            }
+            var _a;
+        });
     };
     AppWaitressComponent.prototype.setAlertForReminder = function () {
         var _this = this;
@@ -1546,6 +1627,12 @@ var AppWaitressComponent = /** @class */ (function () {
                 for (var i = 0; i < _this.ordersByTable.length; i++) {
                     if (_this.ordersByTable[i].orderId == orderId) {
                         _this.ordersByTable.splice(i, 1);
+                    }
+                }
+                for (var i = 0; i < _this.orders.length; i++) {
+                    if (_this.orders[i].orderId == orderId) {
+                        _this.orders.splice(i, 1);
+                        i--;
                     }
                 }
                 //websocket call
@@ -2360,19 +2447,19 @@ var SocketService = /** @class */ (function () {
     SocketService.prototype.addOrder = function (data) {
         this.socket.emit('addOrder', data);
     };
-    SocketService.prototype.closeOrder = function (data) {
-        this.socket.emit('closeOrder', data);
+    SocketService.prototype.closeOrder = function () {
+        this.socket.emit('closeOrder');
     };
     SocketService.prototype.cancelOrder = function (data) {
         this.socket.emit('cancelOrder', data);
     };
-    SocketService.prototype.completeOrder = function (data) {
-        this.socket.emit('completeOrder', data);
+    SocketService.prototype.completeOrder = function (orderNo) {
+        this.socket.emit('completeOrder', orderNo);
     };
-    SocketService.prototype.getUpdatedOrder = function () {
+    SocketService.prototype.getUpdatedOrder = function (event) {
         var _this = this;
         return new Observable_1.Observable(function (observer) {
-            _this.socket.on('join', function (data) {
+            _this.socket.on(event, function (data) {
                 observer.next(data);
             });
             return function () {
