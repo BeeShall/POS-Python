@@ -1,3 +1,11 @@
+"""
+	socketEbents.py
+	Description: This file contains all the events/routes for the websocket calls
+	Date: 3/24/2018
+	Author: Bishal Regmi
+
+"""
+
 from flask import session, Response, request, redirect
 from flask_socketio import join_room, leave_room, send, emit
 import json
@@ -15,6 +23,14 @@ loggedInServers = []
 
 @socketio.on('join')
 def join(data):
+	  """
+        DESCRIPTION:
+            This event is to notify whenever a client or waitress logs in
+        
+        PARAMETERS:
+            staff: indicates whether the user is staff or client
+
+    """
 	print(data)
 	if data['staff']:
 		#if its a server add them to the server list
@@ -42,6 +58,14 @@ def join(data):
 
 @socketio.on('addOrder')
 def addOrders(data):
+	  """
+        DESCRIPTION:
+            This event is for adding order to a table
+        
+        PARAMETERS:
+            order details
+
+    """
 	orderNo = None
 	clientOrder = False
 	print(data)
@@ -86,6 +110,15 @@ def cancelOrder():
 @socketio.on('completeOrder')
 @cross_origin()
 def completeOrder(orderNo):
+	  """
+        DESCRIPTION:
+            This event is for completing an order
+
+        PARAMETERS:
+            orderNo: order Id for which to complete
+
+
+    """
 	for server in loggedInServers:
 		print("Sent to", server)
 		emit("Completed Order", {"orderNo":orderNo}, json=True, room=server)
