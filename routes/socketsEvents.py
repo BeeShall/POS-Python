@@ -23,7 +23,7 @@ loggedInServers = []
 
 @socketio.on('join')
 def join(data):
-	  """
+	"""
         DESCRIPTION:
             This event is to notify whenever a client or waitress logs in
         
@@ -58,7 +58,7 @@ def join(data):
 
 @socketio.on('addOrder')
 def addOrders(data):
-	  """
+	"""
         DESCRIPTION:
             This event is for adding order to a table
         
@@ -110,7 +110,7 @@ def cancelOrder():
 @socketio.on('completeOrder')
 @cross_origin()
 def completeOrder(orderNo):
-	  """
+	"""
         DESCRIPTION:
             This event is for completing an order
 

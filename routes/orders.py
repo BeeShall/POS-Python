@@ -22,7 +22,7 @@ orders = Blueprint('orders', __name__, url_prefix='/api')
 @orders.route('/startOrder', methods=["GET"])
 @cross_origin()
 def startOrder():
-	  """
+	"""
         DESCRIPTION:
             This route is for starting an order when the client accesses the link
         
@@ -76,7 +76,7 @@ def startOrder():
 @orders.route('/addOrders', methods=["POST"])
 @cross_origin()
 def addOrders():
-	  """
+	"""
         DESCRIPTION:
             This route is for adding menu orders to a specific order
         
@@ -113,7 +113,7 @@ def addOrders():
 @orders.route('/getAllOrders', methods=["GET"])
 @cross_origin()
 def getAllOrders():
-	  """
+	"""
         DESCRIPTION:
             This route is for getting all the orders for a specific table/customer
         
@@ -151,7 +151,7 @@ def getAllOrders():
 @orders.route('/getAllActiveOrders', methods=["GET"])
 @cross_origin()
 def getAllActiveOrders():
-	  """
+	"""
         DESCRIPTION:
             This route is for getting all the active orders in the restaurant
         
@@ -180,7 +180,7 @@ def getAllActiveOrders():
 @orders.route('/closeOrder', methods=["GET"])
 @cross_origin()
 def closeOrder():
-	  """
+	"""
         DESCRIPTION:
             This route is for closing a specific order
         
@@ -230,7 +230,7 @@ def closeOrder():
 @orders.route('/cancelOrder', methods=["POST"])
 @cross_origin()
 def cancelOrder():
-	  """
+	"""
         DESCRIPTION:
             This route is for canceling a specifc order for a table/customer
         
@@ -260,7 +260,7 @@ def cancelOrder():
 @orders.route('/completeOrder', methods=["POST"])
 @cross_origin()
 def completeOrder():
-	  """
+	"""
         DESCRIPTION:
             This route is for completing the order/payment for a specific table/customer
         
@@ -323,7 +323,7 @@ def completeOrder():
 @orders.route('/addTip', methods=["POST"])
 @cross_origin()
 def addTip():
-	  """
+	"""
         DESCRIPTION:
             This route is for adding tip for an order
         
@@ -352,7 +352,7 @@ def addTip():
 @orders.route('/addReview', methods=["POST"])
 @cross_origin()
 def addReview():
-	  """
+	"""
         DESCRIPTION:
             This route is for adding a customer review to a menu item
         
@@ -379,7 +379,7 @@ def addReview():
 @orders.route('/emailReceipt', methods=["POST"])
 @cross_origin()
 def emailReceipt():
-	  """
+	"""
         DESCRIPTION:
             This route is for emailing the order receipt to user
         

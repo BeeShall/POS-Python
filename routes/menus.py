@@ -18,7 +18,7 @@ menus = Blueprint('menus', __name__, url_prefix='/api')
 @menus.route('/addMenu', methods=["POST"])
 @cross_origin()
 def addMenu():
-	  """
+	"""
         DESCRIPTION:
             This route is for adding a menu to the databse
         
@@ -48,7 +48,7 @@ def addMenu():
 @menus.route('/getAllMenu', methods=["GET"])
 @cross_origin()
 def getAllMenu():
-	  """
+	"""
         DESCRIPTION:
             This route is for getting all the menus in the database
         
@@ -76,7 +76,7 @@ def getAllMenu():
 @menus.route('/updateMenu', methods=["POST"])
 @cross_origin()
 def updateMenu():
-	  """
+	"""
         DESCRIPTION:
             This route is for updating specific menu in the database
         
@@ -104,7 +104,7 @@ def updateMenu():
 @menus.route('/deleteMenu', methods=["DELETE"])
 @cross_origin()
 def deleteMenu():
-	  """
+	"""
         DESCRIPTION:
             This route is for deleting a specific menu from the database
         

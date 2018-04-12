@@ -36,7 +36,7 @@ closingTime = datetime.datetime.now().replace(hour=22, minute=00)
 @reservation.route('/makeReservation', methods=["GET","POST"])
 @cross_origin()
 def makeReservation():
-	  """
+	"""
         DESCRIPTION:
             This route is for making a reservation through text
         
@@ -64,7 +64,7 @@ def makeReservation():
 @reservation.route('/getReservations', methods=["GET"])
 @cross_origin()
 def getReservation():
-	  """
+	"""
         DESCRIPTION:
             This route is for getting all the reservation after the current date
         
@@ -92,7 +92,7 @@ def getReservation():
 	
 
 def setResponseForMessage(message, data, from_number):
-	  """
+	"""
         DESCRIPTION:
             This method is for generating an appropriate resposne for the given user text
 
@@ -176,7 +176,7 @@ def setResponseForMessage(message, data, from_number):
 		return "Your reservation has already been confirmed for "+ data['resDate'].strftime('%d, %b %Y %H:%M') +" for "+str(data["people"])+" people!"+"\nPlease send 'new' to create a new reservation or 'cance' to cancel it!"
 
 def addReservation(data, from_number):
-	  """
+	"""
         DESCRIPTION:
             This method is for adding a reservation to the database
         

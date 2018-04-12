@@ -17,7 +17,8 @@ employees = Blueprint('employees', __name__, url_prefix='/api')
 @employees.route('/addEmployee', methods=["POST"])
 @cross_origin()
 def addEmployee():
-	  """
+
+	"""
         DESCRIPTION:
             This route is for adding an employee to the employee collection
 			This route can only be called by an admin
@@ -50,7 +51,8 @@ def addEmployee():
 @employees.route('/getAllEmployees', methods=["GET"])
 @cross_origin()
 def getAllEmployees():
-	  """
+
+	"""
         DESCRIPTION:
             This route is for getting all employees in the database
         
@@ -78,7 +80,7 @@ def getAllEmployees():
 @employees.route('/updateEmployee', methods=["POST"])
 @cross_origin()
 def updateEmployee():
-	  """
+	"""
         DESCRIPTION:
             This route is for updating information for a specific employee
         
@@ -109,7 +111,7 @@ def updateEmployee():
 @employees.route('/deleteEmployee', methods=["DELETE"])
 @cross_origin()
 def deleteEmployee():
-	  """
+	"""
         DESCRIPTION:
             This route is for deleting an employee from the database
         

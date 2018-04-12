@@ -18,71 +18,73 @@ auth = Blueprint('auth', __name__, url_prefix='/api')
 @auth.route("/logoutuser", methods=['GET'])
 @cross_origin()
 def logout():
-    """
-        DESCRIPTION:
-            This route is for logging out users which is removing the username from session.
-        
-        REQUEST TYPE: GET
+	
+	"""
+		DESCRIPTION:
+			This route is for logging out users which is removing the username from session.
 
-        PARAMETERS: None
+		REQUEST TYPE: GET
 
-        RETURNS: string message
+		PARAMETERS: None
 
-    """
+		RETURNS: string message
 
-    #removing the sever fromt he list of servers
-    Mongo_Client.loggedInUsers.remove(session['username'])
+	"""
 
-    #removing the server from session
-    session.pop('username', None)
-    session.pop('role', None)
-    return 'Logged out successfully!', 200
+	#removing the sever fromt he list of servers
+	Mongo_Client.loggedInUsers.remove(session['username'])
+
+	#removing the server from session
+	session.pop('username', None)
+	session.pop('role', None)
+	return 'Logged out successfully!', 200
 
 
 @auth.route('/login', methods=['POST'])
 @cross_origin()
 def login():
-   """
-        DESCRIPTION:
-            This route is for logging out users which is removing the username from session.
-        
-        REQUEST TYPE: POST
+	
+	"""
+			DESCRIPTION:
+				This route is for logging out users which is removing the username from session.
 
-        PARAMETERS:
-            { username : <username>, password: <password>}
+			REQUEST TYPE: POST
 
-        RETURNS:
-            redirects the page based on the login role
+			PARAMETERS:
+				{ username : <username>, password: <password>}
 
-    """
+			RETURNS:
+				redirects the page based on the login role
 
-    #getting the parameters from the request
-    value = request.get_json(silent=True)
+		"""
 
-    #checking if the username exists and fetching the hashed password
-    correctCred = Mongo_Client.GetCredentials(value['username'])
+	#getting the parameters from the request
+	value = request.get_json(silent=True)
 
-    print(correctCred)
+	#checking if the username exists and fetching the hashed password
+	correctCred = Mongo_Client.GetCredentials(value['username'])
 
-    #checking if the password match
-    if (correctCred is not None and Hasher.ValidatePassword(value['password'], correctCred['password'])):
+	print(correctCred)
 
-        #storing the username and role in session to ensure logged in
-        session['username'] = correctCred['username']
-        session['role'] = correctCred['userType']
+	#checking if the password match
+	if (correctCred is not None and Hasher.ValidatePassword(value['password'], correctCred['password'])):
 
-        #if the user is admin, redirect to admin page
-        if correctCred['userType'] == 'ADMIN':
-            return json.dumps({
-                "redirect": "admin",
-                 "success": True
-                 })
-        else:
-            #if the user is a server, add them to the list of available servers and redirect to the waitress portal
-            Mongo_Client.loggedInUsers.append(correctCred['username'])
-            return json.dumps({
-                "redirect": "waitress",
-                 "success": True
-                 })
-    else:
-        return json.dumps({"success": False})
+		#storing the username and role in session to ensure logged in
+		session['username'] = correctCred['username']
+		session['role'] = correctCred['userType']
+
+		#if the user is admin, redirect to admin page
+		if correctCred['userType'] == 'ADMIN':
+			return json.dumps({
+				"redirect": "admin",
+				 "success": True
+				 })
+		else:
+			#if the user is a server, add them to the list of available servers and redirect to the waitress portal
+			Mongo_Client.loggedInUsers.append(correctCred['username'])
+			return json.dumps({
+				"redirect": "waitress",
+				 "success": True
+				 })
+	else:
+		return json.dumps({"success": False})

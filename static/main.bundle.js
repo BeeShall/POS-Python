@@ -145,6 +145,17 @@ var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap/index.js");
 var employee_1 = __webpack_require__("../../../../../src/app/dataModels/employee.ts");
 var employee_service_1 = __webpack_require__("../../../../../src/app/services/employee.service.ts");
+/*
+
+AddEmployeeComponent
+
+DESCRIPTION: This is a component class for modal for adding and upadting employees
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var AddEmployeeComponent = /** @class */ (function () {
     function AddEmployeeComponent(activeModal, employeeService) {
         this.activeModal = activeModal;
@@ -152,9 +163,11 @@ var AddEmployeeComponent = /** @class */ (function () {
     }
     AddEmployeeComponent.prototype.ngOnInit = function () {
         if (this.newAdd) {
+            //initialize the employee if opened in add mode
             this.employee = new employee_1.Employee();
         }
     };
+    //this method is used to add or edit the employee in the database respectively
     AddEmployeeComponent.prototype.submit = function () {
         var _this = this;
         if (this.newAdd) {
@@ -162,6 +175,8 @@ var AddEmployeeComponent = /** @class */ (function () {
                 .subscribe(function (data) {
                 if (data["success"]) {
                     console.log("Employee added");
+                    //in the case of new add, the server returns the generated username
+                    //so this usename is added to the existing data
                     _this.employee.username = data["username"];
                     _this.employees.push(_this.employee);
                     _this.activeModal.close('Close click');
@@ -238,8 +253,21 @@ var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap/index.js");
 var add_employee_component_1 = __webpack_require__("../../../../../src/app/app-admin/employee/add-employee/add-employee.component.ts");
 var employee_service_1 = __webpack_require__("../../../../../src/app/services/employee.service.ts");
+/*
+
+EmployeeComponent
+
+DESCRIPTION: This is a component class for the employee page in the admin section
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var EmployeeComponent = /** @class */ (function () {
-    function EmployeeComponent(modalService, employeeService) {
+    function EmployeeComponent(modalService, 
+        //fetching all the employees from the databse
+        employeeService) {
         var _this = this;
         this.modalService = modalService;
         this.employeeService = employeeService;
@@ -250,16 +278,24 @@ var EmployeeComponent = /** @class */ (function () {
         });
     }
     EmployeeComponent.prototype.ngOnInit = function () { };
+    //this method opens the add employee modal
     EmployeeComponent.prototype.openAddMenu = function () {
         var modalRef = this.modalService.open(add_employee_component_1.AddEmployeeComponent);
         modalRef.componentInstance.employees = this.employees;
+        //to indicate if the modal should be opened in add mode
         modalRef.componentInstance.newAdd = true;
     };
+    //this method opens the add employee modal in edit mode
     EmployeeComponent.prototype.edit = function (employee) {
         var modalRef = this.modalService.open(add_employee_component_1.AddEmployeeComponent);
         modalRef.componentInstance.employee = employee;
+        //to indicate if the modal should be opened in edit mode
         modalRef.componentInstance.newAdd = false;
     };
+    //this method deletes the employee from the database
+    //PARAMETERS:
+    //username: username of the employee to delete
+    //index: index of the employee in the local array to delete locally
     EmployeeComponent.prototype.delete = function (username, index) {
         var _this = this;
         this.employeeService.deleteEmployee(username).subscribe(function (data) {
@@ -333,17 +369,32 @@ var menu_1 = __webpack_require__("../../../../../src/app/dataModels/menu.ts");
 var menu_service_1 = __webpack_require__("../../../../../src/app/services/menu.service.ts");
 var nutrition_1 = __webpack_require__("../../../../../src/app/dataModels/nutrition.ts");
 var fileUpload_service_1 = __webpack_require__("../../../../../src/app/services/fileUpload.service.ts");
+/*
+
+AddMenuComponent
+
+DESCRIPTION: This is a component class for the modal for adding menu
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var AddMenuComponent = /** @class */ (function () {
     function AddMenuComponent(activeModal, menuService, fileUploadService) {
         this.activeModal = activeModal;
         this.menuService = menuService;
         this.fileUploadService = fileUploadService;
+        //list of all the types of menu possible
         this.menuTypes = menu_1.MenuType;
+        //list of all the sizes available
         this.sizeList = menu_1.SizeList;
+        //list of all the daily values for the nutrition
         this.dailyValues = nutrition_1.DailyValues;
     }
     AddMenuComponent.prototype.ngOnInit = function () {
         if (this.newAdd) {
+            //if a new menu is being added, initialize everything to empty
             this.menu = new menu_1.Menu();
             this.images = [];
         }
@@ -351,6 +402,7 @@ var AddMenuComponent = /** @class */ (function () {
             this.images = this.menu.images;
         }
     };
+    //this method is used to add image to the list of images
     AddMenuComponent.prototype.addImage = function (uploader) {
         var files = uploader.target.files;
         for (var i = 0; i < files.length; i++) {
@@ -359,14 +411,19 @@ var AddMenuComponent = /** @class */ (function () {
         console.log(files);
         console.log(this.images);
     };
+    //this method is used to remove the images 
     AddMenuComponent.prototype.removeImage = function (index) {
         //remove from firebase as well
         this.images.splice(index, 1);
     };
+    //this method is used to commit the images to firebase and 
+    //submit all the menu data to the databse
     AddMenuComponent.prototype.submit = function () {
         var _this = this;
         console.log(this.menu);
         console.log(this.images);
+        //uploading images to the firebase
+        //and generating the URL for each image
         for (var i = 0; i < this.images.length; i++) {
             this.fileUploadService.pushUpload(this.images[i]);
             var data = {
@@ -379,7 +436,9 @@ var AddMenuComponent = /** @class */ (function () {
             }
         }
         //add pictures
+        //if new menu is being added
         if (this.newAdd) {
+            //add the menus and picture URLS to the databse
             this.menuService.addMenu(this.menu)
                 .subscribe(function (data) {
                 if (data["success"]) {
@@ -461,11 +520,23 @@ var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap/index.js");
 var add_menu_component_1 = __webpack_require__("../../../../../src/app/app-admin/menu/add-menu/add-menu.component.ts");
 var menu_service_1 = __webpack_require__("../../../../../src/app/services/menu.service.ts");
+/*
+
+MenuComponent
+
+DESCRIPTION: This is a component class for the menu page in the admin section
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var MenuComponent = /** @class */ (function () {
     function MenuComponent(modalService, menuService) {
         var _this = this;
         this.modalService = modalService;
         this.menuService = menuService;
+        //fecthcing all the menus in the database
         this.menuService.getAllMenu()
             .subscribe(function (data) {
             _this.menus = data["menus"];
@@ -474,16 +545,24 @@ var MenuComponent = /** @class */ (function () {
     }
     MenuComponent.prototype.ngOnInit = function () {
     };
+    //this method is used to display the add-menu modal when add button is clicked
     MenuComponent.prototype.openAddMenu = function () {
         var modalRef = this.modalService.open(add_menu_component_1.AddMenuComponent, { size: "lg" });
         modalRef.componentInstance.menus = this.menus;
+        //parameter to the modal to indicate that add mode is on
         modalRef.componentInstance.newAdd = true;
     };
+    //this method is used to view the details of all give menu
     MenuComponent.prototype.viewDetails = function (menu) {
         var modalRef = this.modalService.open(add_menu_component_1.AddMenuComponent, { size: "lg" });
         modalRef.componentInstance.menu = menu;
+        //parameter to the modal to indicate that add mode is on
         modalRef.componentInstance.newAdd = false;
     };
+    //this method is used to delete a menu when the delete button is clicke
+    //PARAMETERS:
+    //menuId : id of the menu to be delete
+    //index: index of the menu in the array to delete locally as well
     MenuComponent.prototype.delete = function (menuId, index) {
         var _this = this;
         this.menuService.deleteMenu(menuId).subscribe(function (data) {
@@ -1121,15 +1200,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var app_service_1 = __webpack_require__("../../../../../src/app/services/app.service.ts");
 var router_1 = __webpack_require__("../../../router/esm5/router.js");
+/*
+
+AppLoginComponent
+
+DESCRIPTION: This is a component class for the login page
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var AppLoginComponent = /** @class */ (function () {
     function AppLoginComponent(appService, router) {
         this.appService = appService;
         this.router = router;
     }
     AppLoginComponent.prototype.ngOnInit = function () { };
+    //This method is called when the login button is clicked from the page
     AppLoginComponent.prototype.submit = function (loginForm) {
         var _this = this;
         console.log(loginForm.value);
+        //sending an HTTP request for logging in
         this.appService.login(loginForm.value)
             .subscribe(function (data) {
             if (data["success"]) {
@@ -2157,13 +2249,36 @@ var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var http_1 = __webpack_require__("../../../http/esm5/http.js");
 __webpack_require__("../../../../rxjs/_esm5/add/operator/map.js");
 __webpack_require__("../../../../rxjs/_esm5/add/operator/catch.js");
+/*
+
+AppService
+
+DESCRIPTION: This is a service class for the intial actions of the application i.e login
+
+    The return types of all the methods in the service are Observables
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var AppService = /** @class */ (function () {
     function AppService(http) {
         this.http = http;
+        //base url for REST API
         this.apiUrl = "http://localhost:5000/api/";
+        //header data for the HTTP call
         this.headers = new http_1.Headers({ 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
         this.options = new http_1.RequestOptions({ headers: this.headers });
     }
+    /*
+        DESCRIPTION:
+            This method is used to verify login for the servers anf admins
+
+        PARAMETERS:
+            data: JSON containing login data
+
+    */
     AppService.prototype.login = function (data) {
         return this.http.post(this.apiUrl + "login", data, this.options)
             .map(function (res) { return res.json(); });
@@ -2198,41 +2313,63 @@ var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var http_1 = __webpack_require__("../../../http/esm5/http.js");
 __webpack_require__("../../../../rxjs/_esm5/add/operator/map.js");
 __webpack_require__("../../../../rxjs/_esm5/add/operator/catch.js");
+/*
+
+CustomerService
+
+DESCRIPTION: This is a service class for the APIs needed to be accessed by the customer
+
+    The return types of all the methods in the service are Observables
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var CustomerService = /** @class */ (function () {
     function CustomerService(http) {
         this.http = http;
+        //base URL for the API call
         this.apiUrl = "http://localhost:5000/api/";
+        //headers for the HTTP call
         this.headers = new http_1.Headers({ 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
         this.options = new http_1.RequestOptions({ headers: this.headers });
     }
+    //this method is used to add orders to the table/customer order
+    //PARAMETERS: data -> array of all order objects
     CustomerService.prototype.addOrders = function (data) {
         return this.http.post(this.apiUrl + "addOrders", data, this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to get all the orders from the server for the customer
     CustomerService.prototype.getAllOrders = function () {
         return this.http.get(this.apiUrl + "getAllOrders", this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to get all the active orders for the customer
     CustomerService.prototype.getAllActiveOrders = function () {
         return this.http.get(this.apiUrl + "getAllActiveOrders", this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to close the order for the customer
     CustomerService.prototype.closeOrder = function () {
         return this.http.get(this.apiUrl + "closeOrder", this.options)
             .map(function (res) { return res.json(); });
     };
-    CustomerService.prototype.cancelOrder = function (data) {
-        return this.http.post(this.apiUrl + "cancelOrder", data, this.options)
-            .map(function (res) { return res.json(); });
-    };
+    //this method is used to complete/billing for the customer
+    //PARAMETERS: data -> JSON object containing billing details
     CustomerService.prototype.completePayment = function (data) {
         return this.http.post(this.apiUrl + "completeOrder", data, this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is to add a review/rating to the menus customer has ordered
+    //PARAMETERS: data -> JSON containing a review
     CustomerService.prototype.addReview = function (data) {
         return this.http.post(this.apiUrl + "addReview", data, this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to email a receipt to the customer for their order
+    //PARAMETERS: data-> JSON containing email address of the customer
     CustomerService.prototype.emailReceipt = function (data) {
         return this.http.post(this.apiUrl + "emailReceipt", data, this.options)
             .map(function (res) { return res.json(); });
@@ -2267,25 +2404,47 @@ var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var http_1 = __webpack_require__("../../../http/esm5/http.js");
 __webpack_require__("../../../../rxjs/_esm5/add/operator/map.js");
 __webpack_require__("../../../../rxjs/_esm5/add/operator/catch.js");
+/*
+
+EmployeeService
+
+DESCRIPTION: This is a service class for the APIs that need to be accessed by the admin to update employee details
+
+    The return types of all the methods in the service are Observables
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var EmployeeService = /** @class */ (function () {
     function EmployeeService(http) {
         this.http = http;
+        //base URL for the API
         this.apiUrl = "http://localhost:5000/api/";
+        //headers for the HTTP call
         this.headers = new http_1.Headers({ 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
         this.options = new http_1.RequestOptions({ headers: this.headers });
     }
+    //this method gets all the employees exisiting in the database
     EmployeeService.prototype.getAllEmployees = function () {
         return this.http.get(this.apiUrl + "getAllEmployees", this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method adds an employee to the database
+    //PARAMETERS: emlployee : employee details to add ob type Employee
     EmployeeService.prototype.addEmployee = function (employee) {
         return this.http.post(this.apiUrl + "addEmployee", employee, this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to update details for a specific employee
+    //PARAMETERS: emlployee : employee details to update of type Employee
     EmployeeService.prototype.updateEmployee = function (employee) {
         return this.http.post(this.apiUrl + "updateEmployee", employee, this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to delete a specific employee from the database
+    //PARAMETERS: id : string representing the username for the emoloyee
     EmployeeService.prototype.deleteEmployee = function (id) {
         return this.http.delete(this.apiUrl + "deleteEmployee?username=" + id, this.options)
             .map(function (res) { return res.json(); });
@@ -2319,8 +2478,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var firebase = __webpack_require__("../../../../firebase/app/index.js");
 __webpack_require__("../../../../firebase/storage/index.js");
 var core_1 = __webpack_require__("../../../core/esm5/core.js");
+/*
+
+FileUploadService
+
+DESCRIPTION: This is a service class for uploading the pictures to the firebasae database
+
+    This method uses Google Firebase to store the pictures
+
+AUTHOR: BISHAL REGMI
+
+DATE: 3/28/2018
+
+*/
 var FileUploadService = /** @class */ (function () {
     function FileUploadService() {
+        //config for the Google Firebase
+        //Please refer to FIREBASE API for detailed information about the configs
         this.config = {
             apiKey: "AIzaSyA4Wsc8xn7euyS1Fn45fbdFd82ZRf37zlk",
             authDomain: "seniorproject-45c7b.firebaseapp.com",
@@ -2329,9 +2503,13 @@ var FileUploadService = /** @class */ (function () {
             storageBucket: "seniorproject-45c7b.appspot.com",
             messagingSenderId: "940441894733"
         };
+        //storage directory in the firebase database to store the pictures to
         this.basePath = '/uploads';
+        //initialzing firebase with the configs
         firebase.initializeApp(this.config);
     }
+    //This method is used to upload a document to the firebase directory
+    //PARAMETERS: upload: the file to be upoloaded of type FILE
     FileUploadService.prototype.pushUpload = function (upload) {
         var storageRef = firebase.storage().ref();
         var uploadTask = storageRef.child("" + upload.name).put(upload);
@@ -2381,25 +2559,47 @@ var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var http_1 = __webpack_require__("../../../http/esm5/http.js");
 __webpack_require__("../../../../rxjs/_esm5/add/operator/map.js");
 __webpack_require__("../../../../rxjs/_esm5/add/operator/catch.js");
+/*
+
+MeniService
+
+DESCRIPTION: This is a service class for the all the APIs that needs to be accessed to operation related to menus
+
+    The return types of all the methods in the service are Observables
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var MenuService = /** @class */ (function () {
     function MenuService(http) {
         this.http = http;
+        //base URL for API
         this.apiUrl = "http://localhost:5000/api/";
+        //headers for the API call
         this.headers = new http_1.Headers({ 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
         this.options = new http_1.RequestOptions({ headers: this.headers });
     }
+    //This method is used to fetch all the menus from the database
     MenuService.prototype.getAllMenu = function () {
         return this.http.get(this.apiUrl + "getAllMenu", this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to add a new menu to the database
+    //PARAMETERS: menu: new menu to add of type Menu
     MenuService.prototype.addMenu = function (menu) {
         return this.http.post(this.apiUrl + "addMenu", menu, this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to update a menu in the database
+    //PARAMETERS: menu: menu to update with new details add of type Menu
     MenuService.prototype.updateMenu = function (menu) {
         return this.http.post(this.apiUrl + "updateMenu", menu, this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to delete a menu from the databse
+    //PARAMETERS: id: id of the menu to delete
     MenuService.prototype.deleteMenu = function (id) {
         return this.http.delete(this.apiUrl + "deleteMenu?menuId=" + id, this.options)
             .map(function (res) { return res.json(); });
@@ -2436,26 +2636,51 @@ var Observable_1 = __webpack_require__("../../../../rxjs/_esm5/Observable.js");
 __webpack_require__("../../../../rxjs/_esm5/add/operator/map.js");
 __webpack_require__("../../../../rxjs/_esm5/add/operator/catch.js");
 var io = __webpack_require__("../../../../socket.io-client/lib/index.js");
+/*
+
+SocketService
+
+DESCRIPTION: This is a service class for accessing all the websockets
+
+    The return types of all the methods in the service are Observables
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var SocketService = /** @class */ (function () {
     function SocketService(http) {
         this.http = http;
+        //URL to the socket application 
         this.socket = io("http://localhost:5000/");
     }
+    //this method is used to notify servers that a customer joined
+    //PARAMETERS: data : JSON containing information about whether the joned person is staff or not
     SocketService.prototype.join = function (data) {
         this.socket.emit('join', data);
     };
+    //this method is used to add an order to the database
+    //PARAMETERS: data : JSON containing order information for the order
     SocketService.prototype.addOrder = function (data) {
         this.socket.emit('addOrder', data);
     };
+    //this method is used to closed an order
     SocketService.prototype.closeOrder = function () {
         this.socket.emit('closeOrder');
     };
+    //this method is used to cancel an order
+    //PARAMETERS: data : JSON containing information about the order to cancel
     SocketService.prototype.cancelOrder = function (data) {
         this.socket.emit('cancelOrder', data);
     };
+    //this method is used to complete an order
+    //PARAMETERS: orderNo: order id for the order to cancel
     SocketService.prototype.completeOrder = function (orderNo) {
         this.socket.emit('completeOrder', orderNo);
     };
+    //this method is a subscribing method for all the event emmitted by the server regarding any order updates
+    //PARAMETER: event: event name for which subscribtion is needed
     SocketService.prototype.getUpdatedOrder = function (event) {
         var _this = this;
         return new Observable_1.Observable(function (observer) {
@@ -2467,6 +2692,7 @@ var SocketService = /** @class */ (function () {
             };
         });
     };
+    //this method is a subscribing method for any new order started by the customer i.e new customer
     //this is only listened by the waitress for a new order on a new table
     SocketService.prototype.getNewOrder = function () {
         var _this = this;
@@ -2510,47 +2736,77 @@ var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var http_1 = __webpack_require__("../../../http/esm5/http.js");
 __webpack_require__("../../../../rxjs/_esm5/add/operator/map.js");
 __webpack_require__("../../../../rxjs/_esm5/add/operator/catch.js");
+/*
+
+WaitressService
+
+DESCRIPTION: This is a service class for the waitress portal for any order operationt to be performed by the waitresses
+
+    The return types of all the methods in the service are Observables
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var WaitressService = /** @class */ (function () {
     function WaitressService(http) {
         this.http = http;
+        //base URL
         this.apiUrl = "http://localhost:5000/api/";
+        //API headers
         this.headers = new http_1.Headers({ 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
         this.options = new http_1.RequestOptions({ headers: this.headers });
     }
+    //this method is used to add orders to the table/customer order
+    //PARAMETERS: data -> array of all order objects
     WaitressService.prototype.addOrders = function (data) {
         return this.http.post(this.apiUrl + "addOrders", data, this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to get all the orders from the server for the customer
     WaitressService.prototype.getAllOrders = function () {
         return this.http.get(this.apiUrl + "getAllOrders", this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to get all the active orders for the customer
     WaitressService.prototype.getAllActiveOrders = function () {
         return this.http.get(this.apiUrl + "getAllActiveOrders", this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to close the order for the customer
+    //PARAMETERS: orderID-> order id for the order to be closed
     WaitressService.prototype.closeOrder = function (orderId) {
         console.log(orderId);
         return this.http.get(this.apiUrl + "closeOrder?orderNo=" + orderId, this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to cancel a specific order from a table
+    //PARAMETERS: data-> JSON containing the details for the order to be canceled
     WaitressService.prototype.cancelOrder = function (data) {
         console.log(JSON.stringify(data));
         return this.http.post(this.apiUrl + "cancelOrder", JSON.stringify(data), this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to email a receipt to the customer for their order
+    //PARAMETERS: data-> JSON containing email address of the customer
     WaitressService.prototype.emailReceipt = function (data) {
         return this.http.post(this.apiUrl + "emailReceipt", data, this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to complete/billing for the customer
+    //PARAMETERS: data -> JSON object containing billing details
     WaitressService.prototype.completePayment = function (data) {
         return this.http.post(this.apiUrl + "completeOrder", data, this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to add a tip to the order after the payment has been complete
+    //PARAMETERS: data -> JSON object containing tip data and orderId
     WaitressService.prototype.addTip = function (data) {
         return this.http.post(this.apiUrl + "addTip", data, this.options)
             .map(function (res) { return res.json(); });
     };
+    //this method is used to get all upcoming reservations
     WaitressService.prototype.getReservations = function () {
         return this.http.get(this.apiUrl + "getReservations", this.options)
             .map(function (res) { return res.json(); });
