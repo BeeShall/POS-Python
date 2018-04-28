@@ -138,11 +138,13 @@ def setResponseForMessage(message, data, from_number):
 	elif 'time' not in data:
 		try:
 			d = datetime.datetime.strptime(message+":00","%H:%M:00")
-			if d.minute() % 30 is not 0:
+			if d.minute % 30 != 0:
 				return "Time should be a multiple of 30. Please try again!"
+			
 			data['time']= d
 
 			resDate = datetime.datetime(data['date'].year,data['date'].month,data['date'].day,data['time'].hour,data['time'].minute)
+
 			
 			#checking if the reservation time is after the cuurent date
 			if resDate > datetime.datetime.now() and resDate.time() >= openingTime.time() and resDate.time() <= closingTime.time():
@@ -156,7 +158,8 @@ def setResponseForMessage(message, data, from_number):
 				return "The time you specified is not within our opening hours. Please start over!\nWhat date? "
 			
 
-		except:
+		except Exception as e :
+			print("Error with time", e.message)
 			return "Please enter a valid time in 24 hr format"
 	#user hasn't enterd no of people yet
 	elif 'people' not in data:

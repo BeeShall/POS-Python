@@ -58,6 +58,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = __webpack_require__("../../../core/esm5/core.js");
+/*
+
+AppAdminComponent
+
+DESCRIPTION: This is a component class for thea admin page
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var AppAdminComponent = /** @class */ (function () {
     function AppAdminComponent() {
     }
@@ -618,16 +629,30 @@ var menu_1 = __webpack_require__("../../../../../src/app/dataModels/menu.ts");
 var menu_service_1 = __webpack_require__("../../../../../src/app/services/menu.service.ts");
 var customer_service_1 = __webpack_require__("../../../../../src/app/services/customer.service.ts");
 var socket_service_1 = __webpack_require__("../../../../../src/app/services/socket.service.ts");
+/*
+
+MenuComponent
+
+DESCRIPTION: This is a component class for the customer page of the application
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var AppCustomerComponent = /** @class */ (function () {
     function AppCustomerComponent(config, menuService, customerService, socketService) {
         var _this = this;
         this.menuService = menuService;
         this.customerService = customerService;
         this.socketService = socketService;
+        //configs for the tabs
         config.justify = 'center';
         config.type = 'pills';
+        //initialization of the orders
         this.pendingOrders = [];
         this.activeOrders = [];
+        //fetching all the menus from the database
         this.menuService.getAllMenu()
             .subscribe(function (data) {
             if (data["success"]) {
@@ -637,29 +662,42 @@ var AppCustomerComponent = /** @class */ (function () {
                 console.log("Error fetching menus!");
             }
         });
+        //indicating the server that a customer has joined and
+        // opening a websocket connection for real time updates
         this.socketService.join({
             "staff": false,
         });
     }
+    //this method sorts the menu list fetched from the database such that
+    //1. They are easy to iterate thought HTML
+    //2. keyed on ids so that they are easy to refer later
+    //PARAMETERS: menus -> list of all the menus fetched from the database
     AppCustomerComponent.prototype.sortMenus = function (menus) {
         var _this = this;
         this.dispMenu = {};
+        //initializing the object will all the menusections
         for (var _i = 0, MenuType_1 = menu_1.MenuType; _i < MenuType_1.length; _i++) {
             var type = MenuType_1[_i];
             this.dispMenu[type] = [];
         }
+        //map to store menu keyed with their id
         var idMenu = {};
+        //sorting the menus into idMenu and dispMenu
         for (var _a = 0, menus_1 = menus; _a < menus_1.length; _a++) {
             var menu = menus_1[_a];
             idMenu[menu["_id"]["$oid"]] = menu;
             this.dispMenu[menu.menutype].push(menu);
         }
+        //fetching all the orders for the customer from the database
+        //this is for when the customer is accessing the page agian after the order has already been started
         this.customerService.getAllOrders()
             .subscribe(function (data) {
             if (data["success"]) {
                 var orders = data["orders"];
                 console.log(data);
                 console.log("Orders", orders);
+                //adding the menu details to each order, so that its easy to fetch the menu details for calculations and display
+                //adding the orders to the list of active orders
                 for (var i = 0; i < orders.length; i++) {
                     orders[i].menu = idMenu[orders[i].menuId];
                     _this.activeOrders.push(orders[i]);
@@ -777,13 +815,32 @@ var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var menu_1 = __webpack_require__("../../../../../src/app/dataModels/menu.ts");
 var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap/index.js");
 var view_details_component_1 = __webpack_require__("../../../../../src/app/app-customer/display-menu/view-details/view-details.component.ts");
+/*
+
+DisplayMenuComponent
+
+DESCRIPTION: This is a component class for the menu page in the customer section
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var DisplayMenuComponent = /** @class */ (function () {
     function DisplayMenuComponent(modalService) {
         this.modalService = modalService;
+        //all the different menu type available i.e. entree, appetizers etc
         this.sections = menu_1.MenuType;
+        //array holding template numbers for quantity field
         this.numbers = [];
+        //initialzing the qauntity array
         this.numbers = Array(5).fill(0).map(function (x, i) { return i + 1; });
     }
+    //this method is used to add an order to the list of pending orders for the component
+    //PARAMETERS:
+    //menu : menu being added to order
+    //quantity: quantity of menu being ordered
+    //priceIndex: indicates the index of menu size selected to fetch the price
     DisplayMenuComponent.prototype.addToOrders = function (menu, quantity, priceIndex) {
         for (var i = 0; i < this.pendingOrders.length; i++) {
             if (this.pendingOrders[i].menu.menuId == menu.menuId) {
@@ -800,6 +857,8 @@ var DisplayMenuComponent = /** @class */ (function () {
         });
         console.log(this.pendingOrders);
     };
+    //this method is used to view the modal for detailed menu including nutritional info, pictures and review for a specific menu
+    //PARAMETERS: menu -> menu to view the details for
     DisplayMenuComponent.prototype.openDetails = function (menu) {
         var modalRef = this.modalService.open(view_details_component_1.ViewDetailsComponent, { size: "lg" });
         modalRef.componentInstance.menu = menu;
@@ -872,11 +931,22 @@ var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var menu_1 = __webpack_require__("../../../../../src/app/dataModels/menu.ts");
 var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap/index.js");
 var nutrition_1 = __webpack_require__("../../../../../src/app/dataModels/nutrition.ts");
+/*
+
+ViewDetailsComponent
+
+DESCRIPTION: This is a component class for the modal to display the details of a menu
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var ViewDetailsComponent = /** @class */ (function () {
     function ViewDetailsComponent(activeModal) {
         this.activeModal = activeModal;
+        //daily values for nutritions
         this.dailyValues = nutrition_1.DailyValues;
-        this.currentRate = 5;
     }
     ViewDetailsComponent.prototype.ngOnInit = function () { };
     __decorate([
@@ -923,13 +993,31 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap/index.js");
 var customer_service_1 = __webpack_require__("../../../../../src/app/services/customer.service.ts");
+/*
+
+OrderCompleteComponent
+
+DESCRIPTION: This is a component class for the modal that displays after the payment has been complete
+                This modal allows user to email a receipt and provide reviews for the food
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var OrderCompleteComponent = /** @class */ (function () {
     function OrderCompleteComponent(activeModal, customerService) {
         this.activeModal = activeModal;
         this.customerService = customerService;
         this.alertEmailed = false;
     }
+    //this method adds the reviews to the specifc menu among the ones user ordered
+    //PARAMETERS:
+    //menuId: id of the menu being reviewd
+    //rating: rating as integer for the menu
+    //review: revies as string for the menu
     OrderCompleteComponent.prototype.addReview = function (menuId, rating, review) {
+        //creating POST JSON data for the review
         var data = {
             menuId: menuId,
             review: {
@@ -937,6 +1025,7 @@ var OrderCompleteComponent = /** @class */ (function () {
                 review: review
             }
         };
+        //posting rhe review to the server
         this.customerService.addReview(data)
             .subscribe(function (data) {
             if (data["success"]) {
@@ -947,6 +1036,8 @@ var OrderCompleteComponent = /** @class */ (function () {
             }
         });
     };
+    //this method is used to email a receript to the customer
+    //PARAMETERS: email -> email address for the receipt to be mailed at
     OrderCompleteComponent.prototype.emailReceipt = function (email) {
         var _this = this;
         var data = {
@@ -966,10 +1057,6 @@ var OrderCompleteComponent = /** @class */ (function () {
         });
     };
     OrderCompleteComponent.prototype.ngOnInit = function () { };
-    __decorate([
-        core_1.Input(),
-        __metadata("design:type", Array)
-    ], OrderCompleteComponent.prototype, "activeOrders", void 0);
     __decorate([
         core_1.Input(),
         __metadata("design:type", String)
@@ -1017,21 +1104,36 @@ var customer_service_1 = __webpack_require__("../../../../../src/app/services/cu
 var order_complete_component_1 = __webpack_require__("../../../../../src/app/app-customer/orders/order-complete/order-complete.component.ts");
 var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap/index.js");
 var socket_service_1 = __webpack_require__("../../../../../src/app/services/socket.service.ts");
+/*
+
+OrdersComponent
+
+DESCRIPTION: This is a component class for the orders page in the customer section
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var OrdersComponent = /** @class */ (function () {
     function OrdersComponent(customerService, modalService, socketService) {
         this.customerService = customerService;
         this.modalService = modalService;
         this.socketService = socketService;
+        //tax rate for the food
         this.taxRate = 7;
+        //stores the tip for the order
         this.tip = 0.0;
         this.showCheckOut = true;
     }
     OrdersComponent.prototype.ngOnInit = function () {
         var _this = this;
+        //listening to the socket for real time updates about a new order
         this.socketService.getUpdatedOrder("Order Added")
             .subscribe(function (data) {
             console.log(data);
             if (data["success"]) {
+                //adding the orders to the list
                 (_a = _this.activeOrders).push.apply(_a, _this.pendingOrders);
                 _this.pendingOrders.splice(0, _this.pendingOrders.length);
             }
@@ -1041,11 +1143,13 @@ var OrdersComponent = /** @class */ (function () {
             var _a;
         });
     };
+    // this method adds all the pending orders to the list of active orders
     OrdersComponent.prototype.addToActive = function () {
         //post all the pendingOrders
         var orders = [];
         for (var i = 0; i < this.pendingOrders.length; i++) {
             var tempOrder = this.pendingOrders[i];
+            //creating a standard order object such that to add to the database
             var order = {
                 orderType: tempOrder.orderType,
                 menuId: tempOrder.menu['_id']['$oid'],
@@ -1057,6 +1161,7 @@ var OrdersComponent = /** @class */ (function () {
             orders.push(order);
         }
         console.log(orders);
+        //adding the order to the databse
         this.socketService.addOrder({ "orders": orders });
         /*
         this.customerService.addOrders(orders)
@@ -1073,10 +1178,12 @@ var OrdersComponent = /** @class */ (function () {
             })
             */
     };
+    //this method is used to remove an order from the list of pending orders
     OrdersComponent.prototype.removeOrder = function (i) {
         console.log(this.pendingOrders[i]);
         this.pendingOrders.splice(i, 1);
     };
+    //this method is used to calculate the total for all the orders
     OrdersComponent.prototype.getTotal = function (orders) {
         var total = 0;
         for (var i = 0; i < orders.length; i++) {
@@ -1085,16 +1192,21 @@ var OrdersComponent = /** @class */ (function () {
         this.total = total;
         return total;
     };
+    //this method is used to calculate the tax amount for the order
     OrdersComponent.prototype.getTax = function () {
         return this.total * this.taxRate / 100;
     };
+    //this method is used to calculate the tip amount for the order 
+    //PARAMETERS: tipPercent -> the percent tip the customer decides
     OrdersComponent.prototype.getTip = function (tipPercent) {
         console.log(tipPercent);
         this.tip = tipPercent / 100 * (this.total + this.getTax());
     };
+    //this method is used to get grand total including tax and tip for the order
     OrdersComponent.prototype.getGrandTotal = function () {
         return this.total + this.getTax() + this.tip;
     };
+    //this method is used to close the order 
     OrdersComponent.prototype.closeOrder = function () {
         var _this = this;
         this.customerService.closeOrder()
@@ -1108,13 +1220,17 @@ var OrdersComponent = /** @class */ (function () {
             }
         });
     };
+    //this method is used to make the payment and complete transaction
     OrdersComponent.prototype.completePayment = function () {
         var _this = this;
+        //payment data to send to the server
         var paymentData = {
             tax: this.getTax(),
             tip: this.tip
         };
+        //list of all the menu ids ordered by the customer to use later for asking reviews
         var orderedMenus = new Set();
+        //list of all the menus ordered by the custome without repition
         var reviewMenus = [];
         for (var i = 0; i < this.activeOrders.length; i++) {
             if (!orderedMenus.has(this.activeOrders[i]['menuId'])) {
@@ -1122,11 +1238,13 @@ var OrdersComponent = /** @class */ (function () {
                 reviewMenus.push(this.activeOrders[i]);
             }
         }
+        //completing the payment
         this.customerService.completePayment(paymentData)
             .subscribe(function (data) {
             if (data["success"]) {
                 console.log(reviewMenus);
                 _this.socketService.completeOrder(data["orderId"]);
+                //opening the reviews modal to ask the user for reviews and email reeipt
                 var modalRef = _this.modalService.open(order_complete_component_1.OrderCompleteComponent, { size: "lg" });
                 modalRef.componentInstance.activeOrders = reviewMenus;
                 modalRef.componentInstance.orderId = data["orderId"];
@@ -1277,17 +1395,35 @@ var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap
 var customer_service_1 = __webpack_require__("../../../../../src/app/services/customer.service.ts");
 var moment = __webpack_require__("../../../../moment/moment.js");
 var socket_service_1 = __webpack_require__("../../../../../src/app/services/socket.service.ts");
+/*
+AddOrderComponent
+
+DESCRIPTION: This is a component class for the adding an order from waitress portal
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var AddOrderComponent = /** @class */ (function () {
     function AddOrderComponent(activeModal, customerService, socketService) {
         this.activeModal = activeModal;
         this.customerService = customerService;
         this.socketService = socketService;
+        //list of template numbers for quantity
         this.numbers = [];
         this.numbers = Array(5).fill(0).map(function (x, i) { return i + 1; });
     }
     AddOrderComponent.prototype.ngOnInit = function () {
     };
+    //this method is used to add an order to a table/customer
+    //PARAMETERS:
+    //menuIndex: index of the menu to add
+    //quantity: number of item
+    //size: size of the menu to add
     AddOrderComponent.prototype.addOrder = function (menuIndex, quantity, size) {
+        //temp structure to post to the databse for order
+        //should match the structure in the databse
         var order = {
             orderType: "WAITRESS",
             menuId: this.data.menus[menuIndex]['_id']['$oid'],
@@ -1297,6 +1433,7 @@ var AddOrderComponent = /** @class */ (function () {
             status: "PLACED"
         };
         var orderNo = this.data["ordersByTable"][this.data["tableIndex"]]["orderId"];
+        //websocket push to add order
         this.socketService.addOrder({ "orderNo": orderNo, "orders": [order] });
         /*
         this.customerService.addOrders([order])
@@ -1373,6 +1510,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = __webpack_require__("../../../core/esm5/core.js");
 var ng_bootstrap_1 = __webpack_require__("../../../../@ng-bootstrap/ng-bootstrap/index.js");
 var waitress_service_1 = __webpack_require__("../../../../../src/app/services/waitress.service.ts");
+/*
+CloseOrderComponent
+
+DESCRIPTION: This is a component class for the closing an order from waitress portal
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var CloseOrderComponent = /** @class */ (function () {
     function CloseOrderComponent(activeModal, waitressService) {
         this.activeModal = activeModal;
@@ -1381,8 +1528,10 @@ var CloseOrderComponent = /** @class */ (function () {
         this.alertEmailed = false;
         this.tipAdded = false;
     }
+    //this method is used to make the payment bill
     CloseOrderComponent.prototype.completePayment = function () {
         var _this = this;
+        //data structure to post to he databse
         var paymentData = {
             orderNo: this.orderId,
             tax: 0.14 * this.total,
@@ -1391,6 +1540,7 @@ var CloseOrderComponent = /** @class */ (function () {
         this.waitressService.completePayment(paymentData)
             .subscribe(function (data) {
             if (data["success"]) {
+                //if the payment is completed, hide the checkout screen
                 _this.showCheckOut = false;
             }
             else {
@@ -1398,6 +1548,7 @@ var CloseOrderComponent = /** @class */ (function () {
             }
         });
     };
+    //this method is used to send an email of receipt to the customer
     CloseOrderComponent.prototype.emailReceipt = function (email) {
         var _this = this;
         var data = {
@@ -1416,8 +1567,12 @@ var CloseOrderComponent = /** @class */ (function () {
             }
         });
     };
+    //this method is ised to add a tip for the order
+    //PARAMETERS:
+    //tip: tip amount to be added as number
     CloseOrderComponent.prototype.addTip = function (tip) {
         var _this = this;
+        //data structure to post the tip data
         var data = {
             orderId: this.orderId,
             tip: tip
@@ -1488,24 +1643,44 @@ var add_order_component_1 = __webpack_require__("../../../../../src/app/app-wait
 var waitress_service_1 = __webpack_require__("../../../../../src/app/services/waitress.service.ts");
 var close_order_component_1 = __webpack_require__("../../../../../src/app/app-waitress/add-order/close-order/close-order.component.ts");
 var moment = __webpack_require__("../../../../moment/moment.js");
+/*
+
+AppWaitressComponent
+
+DESCRIPTION: This is a component class for the waitress portal
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var AppWaitressComponent = /** @class */ (function () {
     function AppWaitressComponent(config, socketService, waitressService, menuService, modalService) {
         this.socketService = socketService;
         this.waitressService = waitressService;
         this.menuService = menuService;
         this.modalService = modalService;
+        //list to hold all the orders for the list view
         this.orders = [];
+        //object to hold all the menus keyed by their ids
         this.menus = {};
+        //list of all the menu keys
         this.menuKeys = [];
+        //list of all the orders based on their table for thr order by table view
         this.ordersByTable = [];
+        //list of all the reservations
         this.reservations = [];
+        //name of the server passed by reference
         this.server = "";
+        //config for the tabs setting 
         config.justify = 'center';
         config.type = 'pills';
+        //setting the default server for testing purpopses
         this.server = "BISHAL";
     }
     AppWaitressComponent.prototype.ngOnInit = function () {
         var _this = this;
+        //fetching all the menus from the database
         this.menuService.getAllMenu()
             .subscribe(function (data) {
             if (data["success"]) {
@@ -1515,13 +1690,15 @@ var AppWaitressComponent = /** @class */ (function () {
                 console.log("Error fetching menus!");
             }
         });
+        //fetching all the reservations from the database
         this.waitressService.getReservations()
             .subscribe(function (data) {
             if (data["success"]) {
                 _this.reservations = data["reservations"];
                 console.log(_this.reservations);
+                //initializing the alerts
                 if (_this.reservations.length > 0) {
-                    _this.setAlertForReminder();
+                    //this.setAlertForReminder()
                 }
             }
             else {
@@ -1530,9 +1707,11 @@ var AppWaitressComponent = /** @class */ (function () {
         }, function (err) {
             console.log("Error while fetching reservations!");
         });
+        //notifying the websocket to start a connection
         this.socketService.join({
             "staff": true
         });
+        //listeing to the websocket for all the new orders
         this.socketService.getNewOrder().subscribe(function (data) {
             data = JSON.parse(data);
             _this.ordersByTable.push({
@@ -1542,6 +1721,7 @@ var AppWaitressComponent = /** @class */ (function () {
                 orders: []
             });
         });
+        //listening to the websockets for all the completed order notifications
         this.socketService.getUpdatedOrder("Completed Order")
             .subscribe(function (data) {
             var index = 0;
@@ -1551,6 +1731,7 @@ var AppWaitressComponent = /** @class */ (function () {
                     break;
                 }
             }
+            //deleting the orders form the list of orders
             _this.ordersByTable.splice(index, 1);
             for (var i = 0; i < _this.orders.length; i++) {
                 if (_this.orders[i].orderId == data["orderNo"]) {
@@ -1559,6 +1740,7 @@ var AppWaitressComponent = /** @class */ (function () {
                 }
             }
         });
+        //listening to the websocket for all the added order notifications
         this.socketService.getUpdatedOrder("Order Added")
             .subscribe(function (data) {
             if (data["success"]) {
@@ -1594,6 +1776,7 @@ var AppWaitressComponent = /** @class */ (function () {
             var _a;
         });
     };
+    //this method is used to set alert for the next reservation
     AppWaitressComponent.prototype.setAlertForReminder = function () {
         var _this = this;
         //get the earliest reservation
@@ -1609,12 +1792,13 @@ var AppWaitressComponent = /** @class */ (function () {
         //calculate the timeout to delete it
         setTimeout(function () {
             //what if the reservations are very close? work on that
-            alert("Reservation at " + resTime.format('MM/DD/YYYY hh:mm A') + "for " + _this.reservations[earliestReservationIndex]['people'] + " people!");
+            //alert("Reservation at "+resTime.format('MM/DD/YYYY hh:mm A')+"for "+this.reservations[earliestReservationIndex]['people']+" people!")
             _this.setAlertForReminder();
         }, alertTime);
     };
     AppWaitressComponent.prototype.popAlert = function (time) {
     };
+    //this method is used to get the next earliest reservation
     AppWaitressComponent.prototype.getEarliestReservationIndex = function () {
         //get all the reservation within the next 30 mins
         //reservations alerts come every 30 mins
@@ -1629,6 +1813,10 @@ var AppWaitressComponent = /** @class */ (function () {
         }
         return earlyIndex;
     };
+    //this method sorts the menu list fetched from the database such that
+    //1. They are easy to iterate thought HTML
+    //2. keyed on ids so that they are easy to refer later
+    //PARAMETERS: menus -> list of all the menus fetched from the database
     AppWaitressComponent.prototype.sortMenus = function (menus) {
         var _this = this;
         for (var _i = 0, menus_1 = menus; _i < menus_1.length; _i++) {
@@ -1636,6 +1824,7 @@ var AppWaitressComponent = /** @class */ (function () {
             this.menus[menu['_id']['$oid']] = menu;
             this.menuKeys.push(menu['_id']['$oid']);
         }
+        //getting all the orders that are in processing from the database
         this.waitressService.getAllActiveOrders()
             .subscribe(function (data) {
             if (data["success"]) {
@@ -1646,6 +1835,7 @@ var AppWaitressComponent = /** @class */ (function () {
                     var ordersArray = [];
                     var tableOrders = tempOrders[i].orders;
                     console.log(tableOrders);
+                    //adding the orders to the list view
                     for (var j = 0; j < tableOrders.length; j++) {
                         tableOrders[j].menu = _this.menus[tableOrders[j].menuId];
                         ordersArray.push(tableOrders[j]);
@@ -1659,6 +1849,8 @@ var AppWaitressComponent = /** @class */ (function () {
                             menu: tableOrders[j].menu
                         });
                     }
+                    //adding the orders to the orders by table
+                    //data structure has been customized to make ot easy for iterating through HTML
                     _this.ordersByTable.push({
                         orderNo: tempOrders[i].orderNo,
                         tableNo: tempOrders[i].tableNo,
@@ -1678,13 +1870,19 @@ var AppWaitressComponent = /** @class */ (function () {
         //const modalRef = this.modalService.open(ViewDetailsComponent, { size: "lg" });
         //modalRef.componentInstance.menu = menu;
     };
+    //this method is used to cancel an order
+    //PARAMETERS:
+    //tableIndex: the index of the order in orders by table
+    //orderIndex: the index of the order in the orders list view
     AppWaitressComponent.prototype.cancelOrder = function (tableIndex, OrderIndex) {
         var _this = this;
+        //canceling the order from the databse
         this.waitressService.cancelOrder({ orderId: this.ordersByTable[tableIndex].orderId, cancelId: this.ordersByTable[tableIndex].orders[OrderIndex].date })
             .subscribe(function (data) {
             if (data["success"]) {
                 var orderMenu = _this.ordersByTable[tableIndex].orders[OrderIndex].menu;
                 var orderNo = _this.ordersByTable[tableIndex].orderNo;
+                //removing the orders locally
                 for (var i = 0; i < _this.orders.length; i++) {
                     if (_this.orders[i].orderNo == orderNo && _this.orders[i].menu == orderMenu) {
                         _this.orders.splice(i, 1);
@@ -1700,6 +1898,10 @@ var AppWaitressComponent = /** @class */ (function () {
             }
         });
     };
+    //this method is used to close the order
+    //PARAMETERS:
+    //orderId: id of the order to delete
+    //orders: the order to close
     AppWaitressComponent.prototype.closeOrder = function (orderId, orders) {
         var _this = this;
         console.log("orderId", orderId);
@@ -1709,13 +1911,16 @@ var AppWaitressComponent = /** @class */ (function () {
                 console.log("Order Successfully closed");
                 //remove from ordersByTable
                 var total = 0;
+                //calculate the total of all orders
                 for (var i = 0; i < orders.length; i++) {
                     var price = orders[i].menu.prices[orders[i].size].price;
                     total += orders[i].quantity * price;
                 }
+                //open a model for completing the payment
                 var modalRef = _this.modalService.open(close_order_component_1.CloseOrderComponent);
                 modalRef.componentInstance.orderId = orderId;
                 modalRef.componentInstance.total = total;
+                //remove the order lcoally
                 for (var i = 0; i < _this.ordersByTable.length; i++) {
                     if (_this.ordersByTable[i].orderId == orderId) {
                         _this.ordersByTable.splice(i, 1);
@@ -1727,14 +1932,16 @@ var AppWaitressComponent = /** @class */ (function () {
                         i--;
                     }
                 }
-                //websocket call
             }
             else {
                 console.log("Problems Closing the order");
             }
         });
     };
+    //this method is to add an order for the specific table
+    //PARAMETERS: tableInde: index for the orders by table array
     AppWaitressComponent.prototype.addOrder = function (tableIndex) {
+        //open the addo order modal component
         var modalRef = this.modalService.open(add_order_component_1.AddOrderComponent);
         modalRef.componentInstance.data = {
             menus: Object.values(this.menus),
@@ -1744,6 +1951,7 @@ var AppWaitressComponent = /** @class */ (function () {
             ordersByTable: this.ordersByTable
         };
     };
+    //this method is a utility function to format the time to a readable format
     AppWaitressComponent.prototype.formatDateTime = function (date) {
         return moment(date).format('MM/DD/YYYY hh:mm A');
     };
@@ -1989,6 +2197,17 @@ exports.AppRoutingModule = AppRoutingModule;
 
 "use strict";
 
+/*
+
+Employee
+
+DESCRIPTION: This is a model class for the employee data structure
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 Object.defineProperty(exports, "__esModule", { value: true });
 var Employee = /** @class */ (function () {
     function Employee() {
@@ -2005,10 +2224,24 @@ exports.Employee = Employee;
 
 "use strict";
 
+/*
+
+Menu
+
+DESCRIPTION: This is a model class for the menu data structure
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 Object.defineProperty(exports, "__esModule", { value: true });
 var nutrition_1 = __webpack_require__("../../../../../src/app/dataModels/nutrition.ts");
+//list of all the menu sections
 exports.MenuType = ["PASTA A LA CARTE", "SAUCES", "ENTREES A LA CARTE", "SOUP & SALAD", "SANDWICHES", "SIDES", "DESSERTS", "BEVERAGES"];
+//lis of all the food sizes
 exports.SizeList = ["REGULAR", "SMALL", "LARGE"];
+//data model for Menu
 var Menu = /** @class */ (function () {
     function Menu() {
         this.prices = [];
@@ -2020,12 +2253,14 @@ var Menu = /** @class */ (function () {
     return Menu;
 }());
 exports.Menu = Menu;
+//data model for different prices for different types
 var Price = /** @class */ (function () {
     function Price() {
     }
     return Price;
 }());
 exports.Price = Price;
+//data model for the review for a menu
 var Review = /** @class */ (function () {
     function Review() {
     }
@@ -2041,7 +2276,19 @@ exports.Review = Review;
 
 "use strict";
 
+/*
+
+Nutrition
+
+DESCRIPTION: This is a model class for the nutitional information of a menu
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 Object.defineProperty(exports, "__esModule", { value: true });
+//object holding constant values for daily nutritional value
 exports.DailyValues = {
     "fat": 65,
     "satFat": 20,
@@ -2050,6 +2297,7 @@ exports.DailyValues = {
     "carbs": 300,
     "fiber": 25
 };
+//data model for Fat 
 var Fat = /** @class */ (function () {
     function Fat() {
         this.fat = 0;
@@ -2059,6 +2307,7 @@ var Fat = /** @class */ (function () {
     }
     return Fat;
 }());
+//dagta model for vitamin
 var Vitamin = /** @class */ (function () {
     function Vitamin() {
         this.vita = 0;
@@ -2066,6 +2315,7 @@ var Vitamin = /** @class */ (function () {
     }
     return Vitamin;
 }());
+//data model for carbohydrates
 var Carbs = /** @class */ (function () {
     function Carbs() {
         this.carbs = 0;
@@ -2074,6 +2324,7 @@ var Carbs = /** @class */ (function () {
     }
     return Carbs;
 }());
+//data model for calories
 var Calories = /** @class */ (function () {
     function Calories() {
         this.calories = 0;
@@ -2081,6 +2332,7 @@ var Calories = /** @class */ (function () {
     }
     return Calories;
 }());
+//data model for Nutritonal facts in a menu
 var Nutrition = /** @class */ (function () {
     function Nutrition() {
         this.calories = new Calories();
@@ -2173,6 +2425,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = __webpack_require__("../../../core/esm5/core.js");
+/*
+
+Filter Pipe
+
+DESCRIPTION: This is a piope class to use for filtering in the search bar
+
+AUTHOR: BISHAL REGMI
+
+DATE: 2/28/2018
+
+*/
 var FilterPipe = /** @class */ (function () {
     function FilterPipe() {
     }

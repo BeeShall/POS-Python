@@ -7,9 +7,9 @@
 
 """
 import smtplib
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEText import MIMEText
-from email.MIMEImage import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
 from email.mime.application import MIMEApplication
 from email.utils import COMMASPACE, formatdate
 
@@ -75,8 +75,8 @@ class Mailer(object):
 			#finally sending the email tot he client
 			server.sendmail(username, send_to, msg.as_string())
 			server.close()
-			print 'successfully sent the mail'
+			print("successfully sent the mail")
 			return True
 		except:
-			print "failed to send mail"
+			print("failed to send mail")
 			return False
